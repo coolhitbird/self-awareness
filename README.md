@@ -53,8 +53,34 @@ cp -r self-awareness ~/.openclaw/skills/
 首次使用自动初始化认知文件：
 
 ```bash
-bash ~/.agents/skills/self-awareness/scripts/auto-init-cognition.sh
+bash ~/.agents/skills/self-awareness/scripts/auto-init-cognition.sh [agent_name]
 ```
+
+**自动检测的配置文件**：
+
+初始化脚本会自动扫描并提取以下常见配置文件：
+
+| 文件 | 工具/框架 | 说明 |
+|------|----------|------|
+| IDENTITY.md | OpenClaw | 身份设定 |
+| SOUL.md | OpenClaw | 人格特质 |
+| AGENTS.md | Codex, Cursor, Windsurf | 行为准则 |
+| USER.md | OpenClaw | 用户偏好 |
+| TOOLS.md | OpenClaw | 工具能力 |
+| CLAUDE.md | Claude Code | Claude配置 |
+| .cursorrules | Cursor | Cursor规则 |
+| .cursor/rules/*.mdc | Cursor | Cursor规则(新版) |
+| .windsurfrules | Windsurf | Windsurf规则 |
+| GEMINI.md | Gemini CLI | Gemini配置 |
+| copilot-instructions.md | GitHub Copilot | Copilot指令 |
+| MEMORY.md | OpenClaw | 记忆/笔记 |
+| HEARTBEAT.md | OpenClaw | 心跳/节奏 |
+
+**扫描位置**：
+- `~/.agents/`
+- `~/.openclaw/workspace/`
+- `~/.claude/`
+- 环境变量: `AGENT_ROLE`, `AGENT_PERSONA`
 
 ### 3. 使用
 
