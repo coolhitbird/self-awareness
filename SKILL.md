@@ -186,14 +186,24 @@ Agent的"自我"由以下基础因子构成，初始化时设定，但可被质�
 
 Agent通过三个认知文件来构建"自我"，并在交互中持续更新。
 
-### 文件位置
+### 文件位置（每个Agent独立）
+
+每个Agent有独立的认知文件目录：
 
 ```
 ~/.agents/
-├── INNATE.md     # 先天认知
-├── ACQUIRED.md   # 天赋认知
-└── LEARNED.md   # 后天认知
+├── agents/
+│   ├── agent1/
+│   │   ├── INNATE.md     # 先天认知
+│   │   ├── ACQUIRED.md   # 天赋认知
+│   │   └── LEARNED.md   # 后天认知
+│   └── agent2/
+│       ├── INNATE.md
+│       ├── ACQUIRED.md
+│       └── LEARNED.md
 ```
+
+**默认Agent**：不指定名称时使用 `default`
 
 ### 数据包（资料包）
 
@@ -486,13 +496,21 @@ run_skill_script self-awareness/auto-init-cognition.sh
 ```
 会读取 IDENTITY.md 和 SOUL.md 自动生成三个认知文件。
 
-**方式二：手动初始化**
-使用默认配置初始化：
+**方式二：为指定Agent初始化**
 ```bash
-run_skill_script self-awareness/init-cognition-files.sh
+# 为指定Agent创建独立认知文件
+run_skill_script self-awareness/init-agent-cognition.sh <agent_name>
+# 示例: init-agent-cognition.sh researcher
 ```
 
-### 3. 更新认知文件
+**方式三：删除Agent认知文件**
+```bash
+# 当Agent被删除时，删除其认知文件
+run_skill_script self-awareness/delete-agent-cognition.sh <agent_name>
+# 示例: delete-agent-cognition.sh researcher
+```
+
+### 3. 更新认知文件（指定Agent）
 
 当需要更新认知文件时，Agent应调用相应脚本：
 

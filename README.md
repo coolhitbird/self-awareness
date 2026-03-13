@@ -42,18 +42,55 @@ bash ~/.agents/skills/self-awareness/scripts/auto-init-cognition.sh
 ```
 你具备自我认知能力。在输出前，必须经过「自我质疑 -> 查阅记忆 -> 修正输出」的工作流。
 身份定位是动态的，你可以基于交互经验质疑和修正它。
-三层认知文件：~/.agents/INNATE.md, ACQUIRED.md, LEARNED.md
+每个Agent有独立的认知文件，位于 ~/.agents/agents/<agent_name>/
 ```
 
 ---
 
-## 认知文件
+## 认知文件（每个Agent独立）
+
+```
+~/.agents/agents/
+├── agent1/
+│   ├── INNATE.md     # 先天认知
+│   ├── ACQUIRED.md   # 天赋认知
+│   └── LEARNED.md   # 后天认知
+└── agent2/
+    ├── INNATE.md
+    ├── ACQUIRED.md
+    └── LEARNED.md
+```
 
 | 文件 | 说明 |
 |------|------|
 | INNATE.md | 先天认知（性别、文化、宗教、地域等） |
 | ACQUIRED.md | 天赋认知（情绪、沟通风格、决策倾向等） |
 | LEARNED.md | 后天认知（交互记忆、用户反馈、修正记录等） |
+
+---
+
+## 脚本
+
+| 脚本 | 功能 |
+|------|------|
+| init-agent-cognition.sh | 为指定Agent初始化认知文件 |
+| delete-agent-cognition.sh | 删除Agent的认知文件（Agent废弃时使用） |
+| update-innate.sh | 更新INNATE.md |
+| update-acquired.sh | 更新ACQUIRED.md |
+| update-learned.sh | 更新LEARNED.md |
+
+**使用示例**：
+
+```bash
+# 初始化Agent
+init-agent-cognition.sh researcher
+
+# 更新认知文件
+update-innate.sh 情绪反应 researcher 'sensitive'
+
+# 删除Agent时同步删除认知文件
+delete-agent-cognition.sh researcher
+```
 
 ---
 

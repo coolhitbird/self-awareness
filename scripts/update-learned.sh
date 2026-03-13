@@ -1,22 +1,25 @@
 #!/bin/bash
 # update-learned.sh
-# 更新LEARNED.md中的特定字段
+# 更新指定Agent的LEARNED.md中的特定字段
 
 AGENTS_DIR="$HOME/.agents"
-LEARNED_FILE="$AGENTS_DIR/LEARNED.md"
+AGENTS_DATA_DIR="$AGENTS_DIR/agents"
+
+AGENT_NAME="${2:-default}"
+LEARNED_FILE="$AGENTS_DATA_DIR/$AGENT_NAME/LEARNED.md"
 
 if [ ! -f "$LEARNED_FILE" ]; then
-    echo "Error: LEARNED.md not found. Run init-cognition-files.sh first."
+    echo "Error: LEARNED.md not found for agent '$AGENT_NAME'. Run init-agent-cognition.sh first."
     exit 1
 fi
 
 TYPE="$1"
-CONTENT="$2"
+CONTENT="$3"
 
 if [ -z "$TYPE" ] || [ -z "$CONTENT" ]; then
-    echo "Usage: update-learned.sh <type> <content>"
+    echo "Usage: update-learned.sh <type> <agent_name> <content>"
     echo "Types: memory, feedback, adjustment, strike"
-    echo "Example: update-learned.sh feedback '用户偏好简洁回答'"
+    echo "Example: update-learned.sh feedback researcher '用户偏好简洁回答'"
     exit 1
 fi
 
@@ -46,4 +49,4 @@ echo "---" >> "$LEARNED_FILE"
 echo "## $SECTION" >> "$LEARNED_FILE"
 echo "- $(date): $CONTENT" >> "$LEARNED_FILE"
 
-echo "Updated LEARNED.md: [$SECTION] $CONTENT"
+echo "Updated LEARNED.md for agent '$AGENT_NAME': [$SECTION] $CONTENT"
