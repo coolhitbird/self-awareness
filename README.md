@@ -152,6 +152,38 @@ bash auto-init-cognition.sh researcher "$HOME/.openclaw-autoclaw/workspace"
 - GLOBAL.md可被Agent特定配置覆盖
 - 修改GLOBAL.md影响所有使用默认配置的Agent
 
+### 目录结构说明
+
+```
+~/.agents/
+├── GLOBAL.md              # 【全局】所有Agent的默认人格基础
+├── agents/                # 【Agent特定】每个Agent的独立配置
+│   ├── researcher/
+│   │   ├── INNATE.md
+│   │   ├── ACQUIRED.md
+│   │   └── LEARNED.md
+│   └── default/
+│       └── ...
+├── IDENTITY.md            # 【兼容】旧版/单Agent时使用，等同于GLOBAL.md
+└── SOUL.md               # 【兼容】旧版人格定义
+```
+
+**文件优先级**（找到第一个即可）：
+
+| 优先级 | 文件 | 用途 |
+|--------|------|------|
+| 1 | `~/.agents/agents/<agent_id>/` | Agent特定配置（最高优先级） |
+| 2 | `AGENT_WORKSPACE/` | Agent自定义工作区 |
+| 3 | `~/.agents/GLOBAL.md` | 全局基础人格 |
+| 4 | `~/.agents/IDENTITY.md` | 兼容：旧版单Agent配置 |
+| 5 | `~/.openclaw/workspace/` | OpenClaw工作区 |
+| 6 | 默认值 | 硬编码的默认值 |
+
+**使用建议**：
+- 单Agent：使用 `~/.agents/GLOBAL.md` 或 `~/.agents/IDENTITY.md`
+- 多Agent：使用 `~/.agents/agents/<agent_id>/` 目录
+- 混合：GLOBAL.md 定义公共部分，Agent特定目录覆盖
+
 ### 3. 使用
 
 在 Agent 的 system prompt 中引入：

@@ -189,7 +189,13 @@ if [ $SOURCES_FOUND -gt 0 ]; then
 fi
 
 # === 根据找到的文件提取信息 ===
-# 优先级: Agent工作区 > GLOBAL.md > IDENTITY.md > SOUL.md > AGENTS.md > 其他
+# 优先级: 
+#   1. Agent特定目录 ~/.agents/agents/<agent_id>/
+#   2. Agent自定义工作区 (参数2或环境变量)
+#   3. ~/.agents/GLOBAL.md (全局人格)
+#   4. ~/.agents/IDENTITY.md (兼容旧版)
+#   5. ~/.openclaw/workspace/ (OpenClaw)
+#   6. 默认值
 
 IDENTITY_NAME=""
 IDENTITY_NATURE=""
