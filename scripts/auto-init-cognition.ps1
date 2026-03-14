@@ -25,20 +25,48 @@ $AGENTS_ROOT = "$env:USERPROFILE\.agents"
 $AGENTS_DATA_DIR = "$AGENTS_ROOT\agents"
 $GLOBAL_PERSONA = "$AGENTS_ROOT\GLOBAL.md"
 
-# 常见工具的默认路径（可被环境变量覆盖）
-$OPENCLAW_DIR = if ($env:OPENCLAW_DIR) { $env:OPENCLAW_DIR } else { "$env:USERPROFILE\.openclaw\workspace" }
-$AUTOCLAW_DIR = if ($env:AUTOCLAW_DIR) { $env:AUTOCLAW_DIR } else { "$env:USERPROFILE\.openclaw-autoclaw\workspace" }
+# 动态扫描用户主目录下的所有可能配置目录
+# 自动发现所有包含 IDENTITY.md 或 SOUL.md 的子目录
+Write-Host "正在扫描用户目录..." -ForegroundColor Cyan
+
+$COMMON_DIRS = @($AGENTS_ROOT)  # 首先添加 agents 目录
+
+# 扫描用户主目录下所有子目录
+$userHome = $env:USERPROFILE
+$subdirs = Get-ChildItem -Directory -Path $userHome -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName
+foreach ($dir in $subdirs) {
+    # 检查是否是可能的配置目录（包含特定文件或关键词）
+    $dirName = Split-Path $dir -Leaf
+    
+    # 跳过常见系统目录
+    if ($dirName -match "^(Desktop|Documents|Downloads|Music|Pictures|Videos|Public|Templates)$") { continue }
+    
+    # 检查目录是否包含配置文件
+    $hasConfig = Get-ChildItem -Path $dir -File -ErrorAction SilentlyContinue | Where-Object { 
+        $_.Name -match "^(IDENTITY|SOUL|AGENTS|USER|CLAUDE|MEMORY|TOOLS|GLOBAL)" -and $_.Extension -eq ".md" 
+    }
+    
+    if ($hasConfig) {
+        $COMMON_DIRS += $dir
+        Write-Host "  + 发现配置目录: $dir" -ForegroundColor Green
+    }
+}
+
+# 添加默认的 Claude 目录（如果存在）
 $CLAUDE_DIR = if ($env:CLAUDE_DIR) { $env:CLAUDE_DIR } else { "$env:USERPROFILE\.claude" }
+if (Test-Path $CLAUDE_DIR) { 
+    $COMMON_DIRS += $CLAUDE_DIR 
+}
 
-# 常见目录列表（扫描多个可能的位置）
-$COMMON_DIRS = @(
-    $AGENTS_ROOT,
-    $OPENCLAW_DIR,
-    $AUTOCLAW_DIR,
-    $CLAUDE_DIR
-)
+# 如果没有动态发现，手动添加常见目录
+if ($COMMON_DIRS.Count -eq 1) {
+    Write-Host "  未发现配置目录，使用默认路径" -ForegroundColor Yellow
+    $OPENCLAW_DIR = if ($env:OPENCLAW_DIR) { $env:OPENCLAW_DIR } else { "$env:USERPROFILE\.openclaw\workspace" }
+    $COMMON_DIRS += $OPENCLAW_DIR
+}
 
-Write-Host "扫描路径:" -ForegroundColor Cyan
+Write-Host ""
+Write-Host "将扫描以下目录:" -ForegroundColor Cyan
 foreach ($dir in $COMMON_DIRS) {
     Write-Host "  - $dir" -ForegroundColor Gray
 }

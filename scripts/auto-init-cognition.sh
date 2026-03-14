@@ -22,15 +22,47 @@ if [ -f "$SCRIPT_DIR/config.env" ]; then
     source "$SCRIPT_DIR/config.env"
 fi
 
-# 默认值（可被环境变量覆盖）
+# 默认值
 AGENTS_ROOT="${AGENTS_ROOT:-$HOME/.agents}"
 AGENTS_DATA_DIR="${AGENTS_DATA_DIR:-$AGENTS_ROOT/agents}"
 GLOBAL_PERSONA="${GLOBAL_PERSONA:-$AGENTS_ROOT/GLOBAL.md}"
 
-# 常见工具的默认路径（可被环境变量覆盖）
-OPENCLAW_DIR="${OPENCLAW_DIR:-$HOME/.openclaw/workspace}"
-AUTOCLAW_DIR="${AUTOCLAW_DIR:-$HOME/.openclaw-autoclaw/workspace}"
-CLAUDE_DIR="${CLAUDE_DIR:-$HOME/.claude}"
+# 动态扫描用户主目录下的所有可能配置目录
+# 自动发现所有包含配置文件的子目录
+echo "正在扫描用户目录..."
+
+COMMON_DIRS=("$AGENTS_ROOT")
+
+# 扫描用户主目录下所有子目录
+for dir in "$HOME"/*/; do
+    [ -d "$dir" ] || continue
+    dirname=$(basename "$dir")
+    
+    # 跳过常见系统目录
+    case "$dirname" in
+        Desktop|Documents|Downloads|Music|Pictures|Videos|Public|Templates|.git) continue ;;
+    esac
+    
+    # 检查目录是否包含配置文件
+    if ls "$dir"*.md 2>/dev/null | grep -qE "(IDENTITY|SOUL|AGENTS|USER|CLAUDE|MEMORY|TOOLS|GLOBAL)"; then
+        COMMON_DIRS+=("$dir")
+        echo "  + 发现配置目录: $dir"
+    fi
+done
+
+# 如果没有动态发现，使用默认值
+if [ ${#COMMON_DIRS[@]} -eq 1 ]; then
+    echo "  未发现配置目录，使用默认路径"
+    COMMON_DIRS+=("$HOME/.openclaw/workspace")
+    COMMON_DIRS+=("$HOME/.claude")
+fi
+
+echo ""
+echo "将扫描以下目录:"
+for dir in "${COMMON_DIRS[@]}"; do
+    echo "  - $dir"
+done
+echo ""
 
 # Agent名称（参数1或默认值）
 AGENT_NAME="${1:-${DEFAULT_AGENT:-default}}"
