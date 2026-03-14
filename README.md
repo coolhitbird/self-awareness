@@ -196,6 +196,34 @@ bash auto-init-cognition.sh researcher "$HOME/.openclaw-autoclaw/workspace"
 ├── GLOBAL.md              # 【全局】所有Agent的默认人格基础
 ├── agents/                # 【Agent特定】每个Agent的独立配置
 │   ├── researcher/
+│   │   ├── INNATE.md     # 先天认知（身份、本质）
+│   │   ├── ACQUIRED.md   # 天赋认知（性格、情绪）
+│   │   └── LEARNED.md   # 后天认知（交互记忆）
+│   └── default/
+└── ...
+```
+
+## 持久化机制
+
+**每次输出前必须读取认知文件**：
+
+```
+接收任务 
+  ↓
+读取 INNATE.md   → 知道"我是谁"
+读取 ACQUIRED.md → 知道"我倾向什么"  
+读取 LEARNED.md  → 知道"我学过什么"
+```
+
+**为什么不会忘记？**
+- 认知文件存储在磁盘，不是Agent内部变量
+- 每次会话开始时自动加载
+- 每次交互后可更新记录
+- 版本控制确保更新可追溯
+~/.agents/
+├── GLOBAL.md              # 【全局】所有Agent的默认人格基础
+├── agents/                # 【Agent特定】每个Agent的独立配置
+│   ├── researcher/
 │   │   ├── INNATE.md
 │   │   ├── ACQUIRED.md
 │   │   └── LEARNED.md
