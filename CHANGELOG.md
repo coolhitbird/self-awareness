@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.3.1] - 2026-03-14
+
+### Fixed
+- Auto-scan not working reliably (removed)
+- GLOBAL.md not found (now uses skill's built-in template)
+- Agent-driven configuration simplified
+
+### Changed
+- Simplified to Agent-driven approach (no auto-scan)
+- GLOBAL.md priority: skill template > user config > default
+
 ## [v0.3.0] - 2026-03-14
 
 ### Added
