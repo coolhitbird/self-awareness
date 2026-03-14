@@ -40,6 +40,8 @@ Agent在输出中显示当前情绪状态，形成与用户的简单互动：
 
 ### 1. 安装
 
+#### Linux / macOS / Git Bash
+
 ```bash
 # 克隆到 skills 目录
 git clone https://github.com/coolhitbird/self-awareness.git ~/.agents/skills/self-awareness
@@ -48,12 +50,52 @@ git clone https://github.com/coolhitbird/self-awareness.git ~/.agents/skills/sel
 cp -r self-awareness ~/.openclaw/skills/
 ```
 
+#### Windows (PowerShell)
+
+```powershell
+# 克隆到 skills 目录
+git clone https://github.com/coolhitbird/self-awareness.git $env:USERPROFILE\.agents\skills\self-awareness
+
+# 或复制到 OpenClaw
+Copy-Item -Recurse self-awareness $env:USERPROFILE\.openclaw\skills\
+```
+
 ### 2. 初始化
 
-首次使用自动初始化认知文件：
+#### 自动安装脚本（推荐）
 
 ```bash
+# Linux/macOS/Git Bash
+bash ~/.agents/skills/self-awareness/scripts/install.sh
+
+# Windows PowerShell
+powershell -ExecutionPolicy Bypass -File ~/.agents/skills/self-awareness/scripts/install.ps1
+```
+
+安装脚本会：
+- 自动检测操作系统
+- 检查必要工具
+- 创建必要目录
+- 初始化默认认知文件
+
+#### 手动初始化
+
+```bash
+# Linux/macOS/Git Bash
 bash ~/.agents/skills/self-awareness/scripts/auto-init-cognition.sh [agent_name]
+
+# Windows PowerShell
+powershell -ExecutionPolicy Bypass -File ~/.agents/skills/self-awareness/scripts/auto-init-cognition.ps1 -AgentName "default"
+```
+
+### 3. 在 Agent 中使用
+
+在 Agent 的 system prompt 中引入：
+
+```
+你具备自我认知能力。在输出前，必须经过「自我质疑 -> 查阅记忆 -> 修正输出」的工作流。
+身份定位是动态的，你可以基于交互经验质疑和修正它。
+每个Agent有独立的认知文件，位于 ~/.agents/agents/<agent_name>/
 ```
 
 **自动检测的配置文件**：
@@ -118,25 +160,27 @@ bash ~/.agents/skills/self-awareness/scripts/auto-init-cognition.sh [agent_name]
 
 ## 脚本
 
-| 脚本 | 功能 |
-|------|------|
-| init-agent-cognition.sh | 为指定Agent初始化认知文件 |
-| delete-agent-cognition.sh | 删除Agent的认知文件（Agent废弃时使用） |
-| update-innate.sh | 更新INNATE.md |
-| update-acquired.sh | 更新ACQUIRED.md |
-| update-learned.sh | 更新LEARNED.md |
+| 脚本 (Bash) | 脚本 (PowerShell) | 功能 |
+|-------------|-------------------|------|
+| install.sh | install.ps1 | 安装脚本（自动初始化） |
+| auto-init-cognition.sh | auto-init-cognition.ps1 | 自动检测并初始化 |
+| init-agent-cognition.sh | - | 为指定Agent初始化 |
+| delete-agent-cognition.sh | - | 删除Agent认知文件 |
+| update-innate.sh | - | 更新INNATE.md |
+| update-acquired.sh | - | 更新ACQUIRED.md |
+| update-learned.sh | - | 更新LEARNED.md |
 
 **使用示例**：
 
 ```bash
-# 初始化Agent
-init-agent-cognition.sh researcher
+# Linux/macOS/Git Bash
+bash ~/.agents/skills/self-awareness/scripts/install.sh
 
-# 更新认知文件
-update-innate.sh 情绪反应 researcher 'sensitive'
+# Windows PowerShell
+powershell -ExecutionPolicy Bypass -File ~/.agents/skills/self-awareness/scripts/install.ps1
 
-# 删除Agent时同步删除认知文件
-delete-agent-cognition.sh researcher
+# 指定Agent名称初始化
+bash ~/.agents/skills/self-awareness/scripts/auto-init-cognition.sh researcher
 ```
 
 ---

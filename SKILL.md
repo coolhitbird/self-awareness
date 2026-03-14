@@ -477,24 +477,52 @@ Agent必须对当前输出进行以下质疑：
 
 ## 使用方法
 
-### 1. 引入Skill
+### 1. 安装
+
+#### Linux / macOS / Git Bash
+
+```bash
+git clone https://github.com/coolhitbird/self-awareness.git ~/.agents/skills/self-awareness
+```
+
+#### Windows (PowerShell)
+
+```powershell
+git clone https://github.com/coolhitbird/self-awareness.git $env:USERPROFILE\.agents\skills\self-awareness
+```
+
+### 2. 初始化
+
+运行安装脚本（推荐）：
+```bash
+# Linux/macOS
+bash ~/.agents/skills/self-awareness/scripts/install.sh
+
+# Windows
+powershell -ExecutionPolicy Bypass -File ~/.agents/skills/self-awareness/scripts/install.ps1
+```
+
+### 3. 引入Skill
 
 在Agent的系统提示词中引入本Skill：
 
 ```
 你具备自我认知能力。在输出前，必须经过「自我质疑 -> 查阅记忆 -> 修正输出」的工作流。
 身份定位是动态的，你可以基于交互经验质疑和修正它。
-三层认知文件：~/.agents/INNATE.md, ACQUIRED.md, LEARNED.md
+三层认知文件：~/.agents/agents/<agent_id>/INNATE.md, ACQUIRED.md, LEARNED.md
 ```
 
-### 2. 初始化认知文件
+### 4. 初始化认知文件
 
 **方式一：自动初始化（推荐）**
-自动从现有identity文件获取信息：
+自动检测并初始化：
 ```bash
-run_skill_script self-awareness/auto-init-cognition.sh
+# Linux/macOS/Git Bash
+bash ~/.agents/skills/self-awareness/scripts/auto-init-cognition.sh [agent_name]
+
+# Windows PowerShell
+powershell -ExecutionPolicy Bypass -File ~/.agents/skills/self-awareness/scripts/auto-init-cognition.ps1 -AgentName "default"
 ```
-会读取 IDENTITY.md 和 SOUL.md 自动生成三个认知文件。
 
 **方式二：为指定Agent初始化**
 ```bash
