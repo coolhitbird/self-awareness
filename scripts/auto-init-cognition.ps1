@@ -21,6 +21,11 @@ $AGENTS_ROOT = if ($env:AGENTS_ROOT) { $env:AGENTS_ROOT } else { "$env:USERPROFI
 $AGENTS_DATA_DIR = "$AGENTS_ROOT\agents"
 $GLOBAL_PERSONA = "$AGENTS_ROOT\GLOBAL.md"
 
+# skill目录（用于获取默认模板）
+$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$SkillDir = Split-Path -Parent $ScriptDir
+$DEFAULT_GLOBAL = "$SkillDir\data\GLOBAL.md"
+
 # Agent告诉Skill自己的配置目录（参数优先，否则检查环境变量）
 $envVarName = "AGENT_WORKSPACE_$AgentName"
 if ([string]::IsNullOrEmpty($AgentWorkspace) -and $env:$envVarName) {
@@ -100,12 +105,21 @@ if (-not [string]::IsNullOrEmpty($AgentWorkspace)) {
 Write-Host ""
 Write-Host "=== 步骤2: 检查全局基础人格 ===" -ForegroundColor Green
 
-if (Test-Path $GLOBAL_PERSONA) {
-    Write-Host "找到全局基础人格: $GLOBAL_PERSONA" -ForegroundColor Green
-    $FoundFiles[$GLOBAL_PERSONA] = $true
-    $SourcesFound++
+# 优先使用skill自带的模板
+$GLOBAL_SOURCE = ""
+if (Test-Path $DEFAULT_GLOBAL) {
+    $GLOBAL_SOURCE = $DEFAULT_GLOBAL
+    Write-Host "使用Skill默认模板: $DEFAULT_GLOBAL" -ForegroundColor Green
+} elseif (Test-Path $GLOBAL_PERSONA) {
+    $GLOBAL_SOURCE = $GLOBAL_PERSONA
+    Write-Host "使用用户配置: $GLOBAL_PERSONA" -ForegroundColor Green
 } else {
-    Write-Host "未找到全局基础人格: $GLOBAL_PERSONA" -ForegroundColor Yellow
+    Write-Host "未找到全局基础人格，将使用默认值" -ForegroundColor Yellow
+}
+
+if ($GLOBAL_SOURCE) {
+    $FoundFiles[$GLOBAL_SOURCE] = $true
+    $SourcesFound++
 }
 
 # 步骤3: Agent本地配置
@@ -155,9 +169,9 @@ if ([string]::IsNullOrEmpty($IDENTITY_NAME)) {
 }
 
 # 从GLOBAL提取
-if (Test-Path $GLOBAL_PERSONA) {
-    $GLOBAL_DECISION = Extract-Field $GLOBAL_PERSONA "决策倾向"
-    $GLOBAL_SELF_PERCEPTION = Extract-Field $GLOBAL_PERSONA "自我认知"
+if ($GLOBAL_SOURCE) {
+    $GLOBAL_DECISION = Extract-Field $GLOBAL_SOURCE "决策倾向"
+    $GLOBAL_SELF_PERCEPTION = Extract-Field $GLOBAL_SOURCE "自我认知"
 }
 
 # 默认值

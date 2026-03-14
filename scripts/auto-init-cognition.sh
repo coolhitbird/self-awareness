@@ -22,6 +22,11 @@ AGENT_WORKSPACE="${2:-${!AGENT_WORKSPACE_VAR:-${AGENT_WORKSPACE:-}}}"
 AGENTS_ROOT="${AGENTS_ROOT:-$HOME/.agents}"
 AGENTS_DATA_DIR="${AGENTS_ROOT}/agents"
 GLOBAL_PERSONA="${AGENTS_ROOT}/GLOBAL.md"
+
+# skill目录（用于获取默认模板）
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SKILL_DIR="$(dirname "$SCRIPT_DIR")"
+DEFAULT_GLOBAL="$SKILL_DIR/data/GLOBAL.md"
 AGENT_DIR="$AGENTS_DATA_DIR/$AGENT_NAME"
 
 echo "=========================================="
@@ -75,12 +80,23 @@ fi
 # 全局基础人格 GLOBAL.md
 echo ""
 echo "=== 步骤2: 检查全局基础人格 ==="
-if [ -f "$GLOBAL_PERSONA" ]; then
-    echo "找到全局基础人格: $GLOBAL_PERSONA"
+
+# 优先使用skill自带的模板
+if [ -f "$DEFAULT_GLOBAL" ]; then
+    GLOBAL_SOURCE="$DEFAULT_GLOBAL"
+    echo "使用Skill默认模板: $DEFAULT_GLOBAL"
+# 其次使用用户目录的
+elif [ -f "$GLOBAL_PERSONA" ]; then
+    GLOBAL_SOURCE="$GLOBAL_PERSONA"
+    echo "使用用户配置: $GLOBAL_PERSONA"
+else
+    GLOBAL_SOURCE=""
+    echo "未找到全局基础人格，将使用默认值"
+fi
+
+if [ -n "$GLOBAL_SOURCE" ]; then
     FOUND_FILES["GLOBAL.md"]=1
     ((SOURCES_FOUND++))
-else
-    echo "未找到全局基础人格: $GLOBAL_PERSONA"
 fi
 
 # Agent本地配置文件
@@ -126,9 +142,9 @@ if [ -z "$IDENTITY_NAME" ] && [ -f "$AGENTS_ROOT/IDENTITY.md" ]; then
 fi
 
 # 从GLOBAL提取
-if [ -f "$GLOBAL_PERSONA" ]; then
-    GLOBAL_DECISION=$(extract_field "$GLOBAL_PERSONA" "决策倾向")
-    GLOBAL_SELF_PERCEPTION=$(extract_field "$GLOBAL_PERSONA" "自我认知")
+if [ -n "$GLOBAL_SOURCE" ]; then
+    GLOBAL_DECISION=$(extract_field "$GLOBAL_SOURCE" "决策倾向")
+    GLOBAL_SELF_PERCEPTION=$(extract_field "$GLOBAL_SOURCE" "自我认知")
 fi
 
 # 默认值
