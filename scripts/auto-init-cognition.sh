@@ -3,11 +3,18 @@
 # 自动初始化认知文件
 # 
 # 优先级：
-#   1) Agent指定的工作区路径（环境变量或参数）
+#   1) Agent指定的工作区路径（参数2或环境变量）
 #   2) 已有Agent配置 ~/.agents/agents/<agent_id>/
 #   3) 全局基础人格 ~/.agents/GLOBAL.md
 #   4) 常见工具配置文件
 #   5) 默认生成
+#
+# 环境变量（可自定义路径）：
+#   - AGENTS_ROOT: 主目录 (默认: ~/.agents)
+#   - AGENT_WORKSPACE_<name>: Agent特定工作区
+#   - OPENCLAW_DIR: OpenClaw工作区
+#   - AUTOCLAW_DIR: AutoClaw工作区
+#   - CLAUDE_DIR: Claude配置目录
 
 # 加载配置（如果存在）
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -15,10 +22,15 @@ if [ -f "$SCRIPT_DIR/config.env" ]; then
     source "$SCRIPT_DIR/config.env"
 fi
 
-# 默认值
-AGENTS_DIR="${AGENTS_DIR:-$HOME/.agents}"
-AGENTS_DATA_DIR="${AGENTS_DATA_DIR:-$AGENTS_DIR/agents}"
-GLOBAL_PERSONA="${GLOBAL_PERSONA:-$AGENTS_DIR/GLOBAL.md}"
+# 默认值（可被环境变量覆盖）
+AGENTS_ROOT="${AGENTS_ROOT:-$HOME/.agents}"
+AGENTS_DATA_DIR="${AGENTS_DATA_DIR:-$AGENTS_ROOT/agents}"
+GLOBAL_PERSONA="${GLOBAL_PERSONA:-$AGENTS_ROOT/GLOBAL.md}"
+
+# 常见工具的默认路径（可被环境变量覆盖）
+OPENCLAW_DIR="${OPENCLAW_DIR:-$HOME/.openclaw/workspace}"
+AUTOCLAW_DIR="${AUTOCLAW_DIR:-$HOME/.openclaw-autoclaw/workspace}"
+CLAUDE_DIR="${CLAUDE_DIR:-$HOME/.claude}"
 
 # Agent名称（参数1或默认值）
 AGENT_NAME="${1:-${DEFAULT_AGENT:-default}}"
@@ -46,15 +58,20 @@ fi
 mkdir -p "$AGENT_DIR"
 
 # 辅助函数：从文件提取字段
-# 支持多种格式: **Name**:, * Name:, - Name:, **Name**:
+# 支持多种格式:
+#   - **Name**: value  (冒号在粗体外)
+#   - **Name:** value  (冒号在粗体内)
+#   - - Name: value    (无粗体)
 extract_field() {
     local file="$1"
     local field="$2"
     if [ -f "$file" ]; then
-        # 模式1: - **Name**: value (有冒号)
-        # 模式2: - **Name** value (无冒号)
-        # 模式3: - Name: value
-        grep -iE "^[[:space:]]*(-|\*)+[[:space:]]*(\*+)?${field}(\*+)?[[:space:]]*:?[[:space:]]*" "$file" 2>/dev/null | sed -E 's/.*\*\*'"$field"'\*\*[[:space:]]*:?[[:space:]]*//' | sed 's/^[[:space:]]*//' | head -1
+        # 模式1: - **Name**: value (冒号在粗体外)
+        grep -iE "^[[:space:]]*-\s+\*\*${field}\*\*[[:space:]]*:[[:space:]]*(.+)$" "$file" 2>/dev/null | sed 's/.*:[[:space:]]*//' | head -1 && return
+        # 模式2: - **Name:** value (冒号在粗体内)
+        grep -iE "^[[:space:]]*-\s+\*\*${field}:(.*)$" "$file" 2>/dev/null | sed 's/.*:[[:space:]]*//' | head -1 && return
+        # 模式3: - Name: value (无粗体)
+        grep -iE "^[[:space:]]*-\s+${field}:[[:space:]]*(.+)$" "$file" 2>/dev/null | sed 's/.*:[[:space:]]*//' | head -1 && return
     fi
 }
 
@@ -96,44 +113,52 @@ else
     echo "未找到全局基础人格: $GLOBAL_PERSONA"
 fi
 
-# OpenClaw 文件
+# OpenClaw / AutoClaw 文件
 echo ""
 echo "=== 步骤3: 扫描常见配置文件 ==="
-for f in "$AGENTS_DIR/IDENTITY.md" "$AGENTS_DIR/SOUL.md" "$OPENCLAW_DIR/IDENTITY.md" "$OPENCLAW_DIR/SOUL.md"; do
-    if [ -f "$f" ]; then
-        FOUND_FILES["$f"]=1
-        ((SOURCES_FOUND++))
-        echo "  - 发现: $(basename $f) in $(dirname $f)"
-    fi
+
+# 扫描多个常见路径
+COMMON_DIRS=(
+    "$AGENTS_ROOT"
+    "$OPENCLAW_DIR"
+    "$AUTOCLAW_DIR"
+    "$CLAUDE_DIR"
+)
+
+for dir in "${COMMON_DIRS[@]}"; do
+    for f in "$dir/IDENTITY.md" "$dir/SOUL.md"; do
+        if [ -f "$f" ]; then
+            FOUND_FILES["$f"]=1
+            ((SOURCES_FOUND++))
+            echo "  - 发现: $(basename $f) in $dir"
+        fi
+    done
 done
 
 # AGENTS.md (通用)
-if [ -f "$AGENTS_DIR/AGENTS.md" ] || [ -f "$OPENCLAW_DIR/AGENTS.md" ]; then
-    FOUND_FILES["AGENTS.md"]=1
-    ((SOURCES_FOUND++))
-fi
-
-# USER.md / USER_PROFILE.md
-for f in "$AGENTS_DIR/USER.md" "$OPENCLAW_DIR/USER.md" "$AGENTS_DIR/user.md"; do
-    if [ -f "$f" ]; then
-        FOUND_FILES["USER.md"]=1
+for dir in "${COMMON_DIRS[@]}"; do
+    if [ -f "$dir/AGENTS.md" ]; then
+        FOUND_FILES["AGENTS.md"]=1
         ((SOURCES_FOUND++))
+        echo "  - 发现: AGENTS.md in $dir"
     fi
 done
 
 # TOOLS.md
-for f in "$AGENTS_DIR/TOOLS.md" "$OPENCLAW_DIR/TOOLS.md"; do
-    if [ -f "$f" ]; then
+for dir in "${COMMON_DIRS[@]}"; do
+    if [ -f "$dir/TOOLS.md" ]; then
         FOUND_FILES["TOOLS.md"]=1
         ((SOURCES_FOUND++))
+        echo "  - 发现: TOOLS.md in $dir"
     fi
 done
 
 # Claude Code: CLAUDE.md
-for f in "$AGENTS_DIR/CLAUDE.md" "$OPENCLAW_DIR/CLAUDE.md" "$HOME/.claude/CLAUDE.md"; do
-    if [ -f "$f" ]; then
+for dir in "${COMMON_DIRS[@]}"; do
+    if [ -f "$dir/CLAUDE.md" ]; then
         FOUND_FILES["CLAUDE.md"]=1
         ((SOURCES_FOUND++))
+        echo "  - 发现: CLAUDE.md in $dir"
     fi
 done
 
@@ -164,18 +189,22 @@ if [ -f "$AGENTS_DIR/copilot-instructions.md" ] || [ -f "$OPENCLAW_DIR/copilot-i
 fi
 
 # MEMORY.md
-for f in "$AGENTS_DIR/MEMORY.md" "$OPENCLAW_DIR/MEMORY.md"; do
-    if [ -f "$f" ]; then
+for dir in "${COMMON_DIRS[@]}"; do
+    if [ -f "$dir/MEMORY.md" ]; then
         FOUND_FILES["MEMORY.md"]=1
         ((SOURCES_FOUND++))
+        echo "  - 发现: MEMORY.md in $dir"
     fi
 done
 
 # HEARTBEAT.md
-if [ -f "$OPENCLAW_DIR/HEARTBEAT.md" ]; then
-    FOUND_FILES["HEARTBEAT.md"]=1
-    ((SOURCES_FOUND++))
-fi
+for dir in "${COMMON_DIRS[@]}"; do
+    if [ -f "$dir/HEARTBEAT.md" ]; then
+        FOUND_FILES["HEARTBEAT.md"]=1
+        ((SOURCES_FOUND++))
+        echo "  - 发现: HEARTBEAT.md in $dir"
+    fi
+done
 
 # 环境变量
 if [ -n "$AGENT_ROLE" ] || [ -n "$AGENT_PERSONA" ]; then

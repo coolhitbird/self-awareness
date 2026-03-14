@@ -50,15 +50,23 @@ if ((Test-Path $AGENT_DIR) -and (Test-Path "$AGENT_DIR\INNATE.md")) {
 New-Item -ItemType Directory -Force -Path $AGENT_DIR | Out-Null
 
 # 辅助函数：从文件提取字段
+# 支持多种格式:
+#   - **Name**: value  (冒号在粗体外)
+#   - **Name:** value  (冒号在粗体内)
+#   - - Name: value    (无粗体)
 function Extract-Field {
     param($File, $Field)
     if (Test-Path $File) {
-        $content = Get-Content $File -Raw
-        # 模式1: - **Name**: value
-        if ($content -match "(?i)^\s*-\s*\*\*${Field}\*\*\s*:?\s*(.+)$") {
+        $content = Get-Content $File -Raw -Encoding UTF8
+        # 模式1: - **Name**: value (冒号在粗体外)
+        if ($content -match "(?i)^\s*-\s*\*\*${Field}\*\*\s*:\s*(.+)$") {
             return $Matches[1].Trim()
         }
-        # 模式2: - Name: value
+        # 模式2: - **Name:** value (冒号在粗体内)
+        if ($content -match "(?i)^\s*-\s*\*\*${Field}:(.*)$") {
+            return $Matches[1].Trim()
+        }
+        # 模式3: - Name: value (无粗体)
         if ($content -match "(?i)^\s*-\s*${Field}\s*:\s*(.+)$") {
             return $Matches[1].Trim()
         }
