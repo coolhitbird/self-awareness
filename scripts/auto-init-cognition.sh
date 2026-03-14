@@ -46,11 +46,15 @@ fi
 mkdir -p "$AGENT_DIR"
 
 # 辅助函数：从文件提取字段
+# 支持多种格式: **Name**:, * Name:, - Name:, **Name**:
 extract_field() {
     local file="$1"
     local field="$2"
     if [ -f "$file" ]; then
-        grep -i "^[[:space:]]*- \*\*${field}:" "$file" 2>/dev/null | sed 's/.*: *//' | head -1
+        # 模式1: - **Name**: value (有冒号)
+        # 模式2: - **Name** value (无冒号)
+        # 模式3: - Name: value
+        grep -iE "^[[:space:]]*(-|\*)+[[:space:]]*(\*+)?${field}(\*+)?[[:space:]]*:?[[:space:]]*" "$file" 2>/dev/null | sed -E 's/.*\*\*'"$field"'\*\*[[:space:]]*:?[[:space:]]*//' | sed 's/^[[:space:]]*//' | head -1
     fi
 }
 

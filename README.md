@@ -81,12 +81,24 @@ powershell -ExecutionPolicy Bypass -File ~/.agents/skills/self-awareness/scripts
 #### 手动初始化
 
 ```bash
-# Linux/macOS/Git Bash
+# Linux/macOS/Git Bash - 基本用法
 bash ~/.agents/skills/self-awareness/scripts/auto-init-cognition.sh [agent_name]
 
-# Windows PowerShell
+# Windows PowerShell - 基本用法
 powershell -ExecutionPolicy Bypass -File ~/.agents/skills/self-awareness/scripts/auto-init-cognition.ps1 -AgentName "default"
+
+# 指定Agent自定义工作区
+bash auto-init-cognition.sh researcher "$HOME/.openclaw-autoclaw/workspace"
+powershell -File auto-init-cognition.ps1 -AgentName "researcher" -AgentWorkspace "C:\path\to\workspace"
 ```
+
+#### 初始化流程
+
+1. 检查 Agent 是否已有认知文件 → 有则跳过
+2. 检查 Agent 自定义工作区（参数2或环境变量）
+3. 检查全局基础人格 `~/.agents/GLOBAL.md`
+4. 扫描常见配置文件（IDENTITY.md, SOUL.md, AGENTS.md 等）
+5. 生成 INNATE.md, ACQUIRED.md, LEARNED.md
 
 ### 3. 在 Agent 中使用
 
@@ -179,7 +191,17 @@ bash auto-init-cognition.sh researcher "$HOME/.openclaw-autoclaw/workspace"
 | 5 | `~/.openclaw/workspace/` | OpenClaw工作区 |
 | 6 | 默认值 | 硬编码的默认值 |
 
-**使用建议**：
+**创建全局基础人格**：
+
+```bash
+# 复制模板到用户目录
+cp ~/.agents/skills/self-awareness/data/GLOBAL.md ~/.agents/GLOBAL.md
+
+# 编辑自定义
+vim ~/.agents/GLOBAL.md
+```
+
+使用建议：
 - 单Agent：使用 `~/.agents/GLOBAL.md` 或 `~/.agents/IDENTITY.md`
 - 多Agent：使用 `~/.agents/agents/<agent_id>/` 目录
 - 混合：GLOBAL.md 定义公共部分，Agent特定目录覆盖
