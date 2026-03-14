@@ -21,9 +21,28 @@ if (Test-Path "$ScriptDir\config.env") {
 }
 
 # 默认值
-$AGENTS_DIR = "$env:USERPROFILE\.agents"
-$AGENTS_DATA_DIR = "$AGENTS_DIR\agents"
-$GLOBAL_PERSONA = "$AGENTS_DIR\GLOBAL.md"
+$AGENTS_ROOT = "$env:USERPROFILE\.agents"
+$AGENTS_DATA_DIR = "$AGENTS_ROOT\agents"
+$GLOBAL_PERSONA = "$AGENTS_ROOT\GLOBAL.md"
+
+# 常见工具的默认路径（可被环境变量覆盖）
+$OPENCLAW_DIR = if ($env:OPENCLAW_DIR) { $env:OPENCLAW_DIR } else { "$env:USERPROFILE\.openclaw\workspace" }
+$AUTOCLAW_DIR = if ($env:AUTOCLAW_DIR) { $env:AUTOCLAW_DIR } else { "$env:USERPROFILE\.openclaw-autoclaw\workspace" }
+$CLAUDE_DIR = if ($env:CLAUDE_DIR) { $env:CLAUDE_DIR } else { "$env:USERPROFILE\.claude" }
+
+# 常见目录列表（扫描多个可能的位置）
+$COMMON_DIRS = @(
+    $AGENTS_ROOT,
+    $OPENCLAW_DIR,
+    $AUTOCLAW_DIR,
+    $CLAUDE_DIR
+)
+
+Write-Host "扫描路径:" -ForegroundColor Cyan
+foreach ($dir in $COMMON_DIRS) {
+    Write-Host "  - $dir" -ForegroundColor Gray
+}
+Write-Host ""
 
 # 检查环境变量
 $envVarName = "AGENT_WORKSPACE_$AgentName"
@@ -127,50 +146,73 @@ if (Test-Path $GLOBAL_PERSONA) {
     Write-Host "未找到全局基础人格: $GLOBAL_PERSONA" -ForegroundColor Yellow
 }
 
-# OpenClaw 文件
+# OpenClaw / AutoClaw 文件
 Write-Host ""
 Write-Host "=== 步骤3: 扫描常见配置文件 ===" -ForegroundColor Green
 
-$pathsToCheck = @(
-    "$AGENTS_DIR\IDENTITY.md",
-    "$AGENTS_DIR\SOUL.md",
-    "$OPENCLAW_DIR\IDENTITY.md",
-    "$OPENCLAW_DIR\SOUL.md"
-)
-
-foreach ($p in $pathsToCheck) {
-    $pFixed = $p -replace '\\', '/'
-    if (Test-Path $pFixed) {
-        $FoundFiles[$pFixed] = $true
-        $SourcesFound++
-        Write-Host "  - 发现: $([System.IO.Path]::GetFileName($pFixed)) in $([System.IO.Path]::GetDirectoryName($pFixed))" -ForegroundColor Green
+# 扫描多个常见目录
+foreach ($dir in $COMMON_DIRS) {
+    $dirFixed = $dir -replace '\\', '/'
+    
+    # IDENTITY.md 和 SOUL.md
+    foreach ($file in @("IDENTITY.md", "SOUL.md")) {
+        $path = "$dirFixed/$file"
+        if (Test-Path $path) {
+            $FoundFiles[$path] = $true
+            $SourcesFound++
+            Write-Host "  - 发现: $file in $dirFixed" -ForegroundColor Green
+        }
     }
 }
 
 # AGENTS.md
-if ((Test-Path "$AGENTS_DIR\AGENTS.md") -or (Test-Path "$OPENCLAW_DIR\AGENTS.md")) {
-    $FoundFiles["AGENTS.md"] = $true
-    $SourcesFound++
+foreach ($dir in $COMMON_DIRS) {
+    $dirFixed = $dir -replace '\\', '/'
+    if (Test-Path "$dirFixed/AGENTS.md") {
+        $FoundFiles["AGENTS.md"] = $true
+        $SourcesFound++
+        Write-Host "  - 发现: AGENTS.md in $dirFixed" -ForegroundColor Green
+    }
 }
 
 # USER.md
-if ((Test-Path "$AGENTS_DIR\USER.md") -or (Test-Path "$OPENCLAW_DIR\USER.md")) {
-    $FoundFiles["USER.md"] = $true
-    $SourcesFound++
+foreach ($dir in $COMMON_DIRS) {
+    $dirFixed = $dir -replace '\\', '/'
+    if (Test-Path "$dirFixed/USER.md") {
+        $FoundFiles["USER.md"] = $true
+        $SourcesFound++
+        Write-Host "  - 发现: USER.md in $dirFixed" -ForegroundColor Green
+    }
 }
 
-# CLAUDE.md
-$pathsToCheck = @("$AGENTS_DIR\CLAUDE.md", "$OPENCLAW_DIR\CLAUDE.md", "$env:USERPROFILE\.claude\CLAUDE.md")
-$found = Test-FileExists $pathsToCheck
-if ($found) {
-    $FoundFiles["CLAUDE.md"] = $true
-    $SourcesFound++
+# TOOLS.md
+foreach ($dir in $COMMON_DIRS) {
+    $dirFixed = $dir -replace '\\', '/'
+    if (Test-Path "$dirFixed/TOOLS.md") {
+        $FoundFiles["TOOLS.md"] = $true
+        $SourcesFound++
+        Write-Host "  - 发现: TOOLS.md in $dirFixed" -ForegroundColor Green
+    }
 }
 
 # MEMORY.md
-if (Test-Path "$OPENCLAW_DIR\MEMORY.md") {
-    $FoundFiles["MEMORY.md"] = $true
-    $SourcesFound++
+foreach ($dir in $COMMON_DIRS) {
+    $dirFixed = $dir -replace '\\', '/'
+    if (Test-Path "$dirFixed/MEMORY.md") {
+        $FoundFiles["MEMORY.md"] = $true
+        $SourcesFound++
+        Write-Host "  - 发现: MEMORY.md in $dirFixed" -ForegroundColor Green
+    }
+}
+
+# HEARTBEAT.md
+foreach ($dir in $COMMON_DIRS) {
+    $dirFixed = $dir -replace '\\', '/'
+    if (Test-Path "$dirFixed/HEARTBEAT.md") {
+        $FoundFiles["HEARTBEAT.md"] = $true
+        $SourcesFound++
+        Write-Host "  - 发现: HEARTBEAT.md in $dirFixed" -ForegroundColor Green
+    }
 }
 
 # 环境变量
@@ -231,7 +273,7 @@ if (-not [string]::IsNullOrEmpty($AgentWorkspace)) {
 Write-Host ""
 Write-Host "=== 提取配置信息 ===" -ForegroundColor Green
 
-$pathsToCheck = @("$AGENTS_DIR\IDENTITY.md", "$OPENCLAW_DIR\IDENTITY.md")
+$pathsToCheck = @("$AGENTS_ROOT\IDENTITY.md", "$OPENCLAW_DIR\IDENTITY.md")
 $found = Test-FileExists $pathsToCheck
 if ($found -and [string]::IsNullOrEmpty($IDENTITY_NAME)) {
     $IDENTITY_NAME = Extract-Field $found "Name"
@@ -240,7 +282,7 @@ if ($found -and [string]::IsNullOrEmpty($IDENTITY_NAME)) {
 }
 
 # 提取 SOUL.md
-$pathsToCheck = @("$AGENTS_DIR\SOUL.md", "$OPENCLAW_DIR\SOUL.md")
+$pathsToCheck = @("$AGENTS_ROOT\SOUL.md", "$OPENCLAW_DIR\SOUL.md")
 $found = Test-FileExists $pathsToCheck
 if ($found) {
     $SOUL_CORE = Extract-Field $found "Core Identity"
@@ -250,7 +292,7 @@ if ($found) {
 }
 
 # 提取 AGENTS.md
-$pathsToCheck = @("$AGENTS_DIR\AGENTS.md", "$OPENCLAW_DIR\AGENTS.md")
+$pathsToCheck = @("$AGENTS_ROOT\AGENTS.md", "$OPENCLAW_DIR\AGENTS.md")
 $found = Test-FileExists $pathsToCheck
 if ($found) {
     $AGENTS_CONTENT = Get-Content $found -Raw | Select-Object -First 500
@@ -258,7 +300,7 @@ if ($found) {
 }
 
 # 提取 USER.md
-$pathsToCheck = @("$AGENTS_DIR\USER.md", "$OPENCLAW_DIR\USER.md")
+$pathsToCheck = @("$AGENTS_ROOT\USER.md", "$OPENCLAW_DIR\USER.md")
 $found = Test-FileExists $pathsToCheck
 if ($found) {
     $USER_PREFERENCES = Get-Content $found -Raw | Select-Object -First 300

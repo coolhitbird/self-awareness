@@ -166,19 +166,19 @@ for dir in "${COMMON_DIRS[@]}"; do
 done
 
 # Cursor: .cursorrules 或 .cursor/rules/
-if [ -f "$AGENTS_DIR/.cursorrules" ] || [ -f "$OPENCLAW_DIR/.cursorrules" ]; then
+if [ -f "$AGENTS_ROOT/.cursorrules" ] || [ -f "$OPENCLAW_DIR/.cursorrules" ]; then
     FOUND_FILES[".cursorrules"]=1
     ((SOURCES_FOUND++))
 fi
 
 # Windsurf: .windsurfrules
-if [ -f "$AGENTS_DIR/.windsurfrules" ] || [ -f "$OPENCLAW_DIR/.windsurfrules" ]; then
+if [ -f "$AGENTS_ROOT/.windsurfrules" ] || [ -f "$OPENCLAW_DIR/.windsurfrules" ]; then
     FOUND_FILES[".windsurfrules"]=1
     ((SOURCES_FOUND++))
 fi
 
 # Gemini CLI: GEMINI.md
-for f in "$AGENTS_DIR/GEMINI.md" "$OPENCLAW_DIR/GEMINI.md"; do
+for f in "$AGENTS_ROOT/GEMINI.md" "$OPENCLAW_DIR/GEMINI.md"; do
     if [ -f "$f" ]; then
         FOUND_FILES["GEMINI.md"]=1
         ((SOURCES_FOUND++))
@@ -186,7 +186,7 @@ for f in "$AGENTS_DIR/GEMINI.md" "$OPENCLAW_DIR/GEMINI.md"; do
 done
 
 # Copilot: copilot-instructions.md
-if [ -f "$AGENTS_DIR/copilot-instructions.md" ] || [ -f "$OPENCLAW_DIR/copilot-instructions.md" ]; then
+if [ -f "$AGENTS_ROOT/copilot-instructions.md" ] || [ -f "$OPENCLAW_DIR/copilot-instructions.md" ]; then
     FOUND_FILES["copilot-instructions.md"]=1
     ((SOURCES_FOUND++))
 fi
@@ -282,7 +282,7 @@ if [ -n "$AGENT_WORKSPACE" ]; then
 fi
 
 # 提取 IDENTITY.md
-for f in "$AGENTS_DIR/IDENTITY.md" "$OPENCLAW_DIR/IDENTITY.md"; do
+for f in "$AGENTS_ROOT/IDENTITY.md" "$OPENCLAW_DIR/IDENTITY.md"; do
     if [ -f "$f" ] && [ -z "$IDENTITY_NAME" ]; then
         IDENTITY_NAME=$(extract_field "$f" "Name")
         IDENTITY_NATURE=$(extract_field "$f" "Nature")
@@ -293,7 +293,7 @@ for f in "$AGENTS_DIR/IDENTITY.md" "$OPENCLAW_DIR/IDENTITY.md"; do
 done
 
 # 提取 SOUL.md
-for f in "$AGENTS_DIR/SOUL.md" "$OPENCLAW_DIR/SOUL.md"; do
+for f in "$AGENTS_ROOT/SOUL.md" "$OPENCLAW_DIR/SOUL.md"; do
     if [ -f "$f" ]; then
         SOUL_CORE=$(extract_field "$f" "Core Identity")
         SOUL_TRUTHS=$(extract_field "$f" "Core Truths")
@@ -304,7 +304,7 @@ for f in "$AGENTS_DIR/SOUL.md" "$OPENCLAW_DIR/SOUL.md"; do
 done
 
 # 提取 AGENTS.md (前200字符作为参考)
-for f in "$AGENTS_DIR/AGENTS.md" "$OPENCLAW_DIR/AGENTS.md"; do
+for f in "$AGENTS_ROOT/AGENTS.md" "$OPENCLAW_DIR/AGENTS.md"; do
     if [ -f "$f" ]; then
         AGENTS_CONTENT=$(head -c 500 "$f")
         echo "  - Found AGENTS.md"
@@ -313,7 +313,7 @@ for f in "$AGENTS_DIR/AGENTS.md" "$OPENCLAW_DIR/AGENTS.md"; do
 done
 
 # 提取 USER.md
-for f in "$AGENTS_DIR/USER.md" "$OPENCLAW_DIR/USER.md"; do
+for f in "$AGENTS_ROOT/USER.md" "$OPENCLAW_DIR/USER.md"; do
     if [ -f "$f" ]; then
         USER_PREFERENCES=$(head -c 300 "$f")
         echo "  - Found USER.md"
@@ -322,7 +322,7 @@ for f in "$AGENTS_DIR/USER.md" "$OPENCLAW_DIR/USER.md"; do
 done
 
 # 提取 MEMORY.md
-for f in "$AGENTS_DIR/MEMORY.md" "$OPENCLAW_DIR/MEMORY.md"; do
+for f in "$AGENTS_ROOT/MEMORY.md" "$OPENCLAW_DIR/MEMORY.md"; do
     if [ -f "$f" ]; then
         MEMORY_NOTES=$(head -c 500 "$f")
         echo "  - Found MEMORY.md"
