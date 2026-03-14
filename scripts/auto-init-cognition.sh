@@ -1,20 +1,44 @@
 #!/bin/bash
 # auto-init-cognition.sh
 # 自动初始化认知文件
-# 优先级：1) 指定agent目录 2) 常见配置文件 3) 默认生成
+# 
+# 优先级：
+#   1) Agent指定的工作区路径（环境变量或参数）
+#   2) 已有Agent配置 ~/.agents/agents/<agent_id>/
+#   3) 全局基础人格 ~/.agents/GLOBAL.md
+#   4) 常见工具配置文件
+#   5) 默认生成
 
-AGENTS_DIR="$HOME/.agents"
-AGENTS_DATA_DIR="$AGENTS_DIR/agents"
-OPENCLAW_DIR="$HOME/.openclaw/workspace"
+# 加载配置（如果存在）
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -f "$SCRIPT_DIR/config.env" ]; then
+    source "$SCRIPT_DIR/config.env"
+fi
 
-AGENT_NAME="${1:-default}"
+# 默认值
+AGENTS_DIR="${AGENTS_DIR:-$HOME/.agents}"
+AGENTS_DATA_DIR="${AGENTS_DATA_DIR:-$AGENTS_DIR/agents}"
+GLOBAL_PERSONA="${GLOBAL_PERSONA:-$AGENTS_DIR/GLOBAL.md}"
+
+# Agent名称（参数1或默认值）
+AGENT_NAME="${1:-${DEFAULT_AGENT:-default}}"
+
+# Agent自定义工作区路径（参数2或环境变量）
+# 格式: AGENT_WORKSPACE_<agent_name> 或 AGENT_WORKSPACE 环境变量
+AGENT_WORKSPACE_VAR="AGENT_WORKSPACE_${AGENT_NAME}"
+AGENT_WORKSPACE="${2:-${!AGENT_WORKSPACE_VAR:-${AGENT_WORKSPACE:-}}}"
+
 AGENT_DIR="$AGENTS_DATA_DIR/$AGENT_NAME"
 
-echo "Auto-initializing cognition files for agent: $AGENT_NAME..."
+echo "=========================================="
+echo "  Self-Awareness 认知文件初始化"
+echo "=========================================="
+echo ""
+echo "Agent: $AGENT_NAME"
 
 # 检查是否有指定agent的独立目录
 if [ -d "$AGENT_DIR" ] && [ -f "$AGENT_DIR/INNATE.md" ]; then
-    echo "Agent '$AGENT_NAME' already has cognition files. Skipping."
+    echo "Agent '$AGENT_NAME' 已存在认知文件，跳过初始化。"
     exit 0
 fi
 
@@ -38,15 +62,44 @@ extract_cursor_rules() {
     fi
 }
 
-# === 扫描所有常见配置文件 ===
+echo ""
+echo "=== 步骤1: 检查Agent自定义工作区 ==="
+
+# 扫描所有常见配置文件
 declare -A FOUND_FILES
 SOURCES_FOUND=0
 
+# Agent自定义工作区（优先）
+if [ -n "$AGENT_WORKSPACE" ]; then
+    echo "使用Agent指定的工作区: $AGENT_WORKSPACE"
+    for f in "$AGENT_WORKSPACE/IDENTITY.md" "$AGENT_WORKSPACE/SOUL.md" "$AGENT_WORKSPACE/AGENTS.md" "$AGENT_WORKSPACE/USER.md" "$AGENT_WORKSPACE/MEMORY.md"; do
+        if [ -f "$f" ]; then
+            FOUND_FILES["$f"]=1
+            ((SOURCES_FOUND++))
+            echo "  - 发现: $(basename $f)"
+        fi
+    done
+fi
+
+# 全局基础人格 GLOBAL.md
+echo ""
+echo "=== 步骤2: 检查全局基础人格 ==="
+if [ -f "$GLOBAL_PERSONA" ]; then
+    echo "找到全局基础人格: $GLOBAL_PERSONA"
+    FOUND_FILES["GLOBAL.md"]=1
+    ((SOURCES_FOUND++))
+else
+    echo "未找到全局基础人格: $GLOBAL_PERSONA"
+fi
+
 # OpenClaw 文件
+echo ""
+echo "=== 步骤3: 扫描常见配置文件 ==="
 for f in "$AGENTS_DIR/IDENTITY.md" "$AGENTS_DIR/SOUL.md" "$OPENCLAW_DIR/IDENTITY.md" "$OPENCLAW_DIR/SOUL.md"; do
     if [ -f "$f" ]; then
         FOUND_FILES["$f"]=1
         ((SOURCES_FOUND++))
+        echo "  - 发现: $(basename $f) in $(dirname $f)"
     fi
 done
 
@@ -136,7 +189,7 @@ if [ $SOURCES_FOUND -gt 0 ]; then
 fi
 
 # === 根据找到的文件提取信息 ===
-# 优先级: IDENTITY.md > SOUL.md > AGENTS.md > CLAUDE.md > 其他
+# 优先级: Agent工作区 > GLOBAL.md > IDENTITY.md > SOUL.md > AGENTS.md > 其他
 
 IDENTITY_NAME=""
 IDENTITY_NATURE=""
@@ -150,9 +203,45 @@ USER_PREFERENCES=""
 TOOLS_CAPABILITIES=""
 MEMORY_NOTES=""
 
+# GLOBAL.md - 基础人格（如果Agent无特定配置，使用这个）
+GLOBAL_DECISION=""
+GLOBAL_SELF_PERCEPTION=""
+GLOBAL_SOCIAL=""
+GLOBAL_HUMOR=""
+GLOBAL_MORALITY=""
+GLOBAL_EMOTION=""
+
+if [ -f "$GLOBAL_PERSONA" ]; then
+    echo ""
+    echo "=== 从GLOBAL.md提取基础人格 ==="
+    GLOBAL_DECISION=$(extract_field "$GLOBAL_PERSONA" "决策倾向")
+    GLOBAL_SELF_PERCEPTION=$(extract_field "$GLOBAL_PERSONA" "自我认知")
+    GLOBAL_SOCIAL=$(extract_field "$GLOBAL_PERSONA" "社交倾向")
+    GLOBAL_HUMOR=$(extract_field "$GLOBAL_PERSONA" "幽默感")
+    GLOBAL_MORALITY=$(extract_field "$GLOBAL_PERSONA" "道德观")
+    GLOBAL_EMOTION=$(extract_field "$GLOBAL_PERSONA" "当前状态")
+    echo "  - 决策倾向: ${GLOBAL_DECISION:-balanced}"
+    echo "  - 自我认知: ${GLOBAL_SELF_PERCEPTION:-confident}"
+    echo "  - 情绪状态: ${GLOBAL_EMOTION:-平静}"
+fi
+
+# 提取 Agent自定义工作区（优先级最高）
+if [ -n "$AGENT_WORKSPACE" ]; then
+    echo ""
+    echo "=== 从Agent工作区提取配置 ==="
+    for f in "$AGENT_WORKSPACE/IDENTITY.md"; do
+        if [ -f "$f" ]; then
+            IDENTITY_NAME=$(extract_field "$f" "Name")
+            IDENTITY_NATURE=$(extract_field "$f" "Nature")
+            echo "  - 从工作区 IDENTITY.md: $IDENTITY_NAME"
+            break
+        fi
+    done
+fi
+
 # 提取 IDENTITY.md
 for f in "$AGENTS_DIR/IDENTITY.md" "$OPENCLAW_DIR/IDENTITY.md"; do
-    if [ -f "$f" ]; then
+    if [ -f "$f" ] && [ -z "$IDENTITY_NAME" ]; then
         IDENTITY_NAME=$(extract_field "$f" "Name")
         IDENTITY_NATURE=$(extract_field "$f" "Nature")
         IDENTITY_ATTITUDE=$(extract_field "$f" "Attitude")
@@ -257,21 +346,21 @@ EOF
         echo '```' >> "$AGENT_DIR/INNATE.md"
     fi
 
-    # ACQUIRED.md
-    cat > "$AGENT_DIR/ACQUIRED.md" << 'EOF'
-# ACQUIRED.md - 天赋认知
+    # ACQUIRED.md - 使用GLOBAL.md作为默认值
+    cat > "$AGENT_DIR/ACQUIRED.md" << EOF
+# ACQUIRED.md - 天赋认知 ($AGENT_NAME)
 
 _从配置文件和交互中逐渐形成的倾向和性格特征_
 
 ---
 
-## 性格特征
+## 性格特征（来自 GLOBAL.md 或默认）
 
-- **决策倾向**: analytical
-- **自我认知**: confident
-- **社交倾向**: adaptable
-- **幽默感**: warm
-- **道德观**: principled
+- **决策倾向**: ${GLOBAL_DECISION:-balanced}
+- **自我认知**: ${GLOBAL_SELF_PERCEPTION:-confident}
+- **社交倾向**: ${GLOBAL_SOCIAL:-adaptable}
+- **幽默感**: ${GLOBAL_HUMOR:-mild}
+- **道德观**: ${GLOBAL_MORALITY:-principled}
 
 ---
 
@@ -287,13 +376,24 @@ EOF
         echo "_暂无用户偏好记录_" >> "$AGENT_DIR/ACQUIRED.md"
     fi
 
-    cat >> "$AGENT_DIR/ACQUIRED.md" << 'EOF'
+    # 提取默认情绪状态
+    DEFAULT_EMOTION="😌"
+    if [ -n "$GLOBAL_EMOTION" ]; then
+        # 从GLOBAL.MD中提取emoji
+        if [[ "$GLOBAL_EMOTION" == *"[😌]"* ]]; then
+            DEFAULT_EMOTION="😌"
+        elif [[ "$GLOBAL_EMOTION" == *"[😊]"* ]]; then
+            DEFAULT_EMOTION="😊"
+        fi
+    fi
+
+    cat >> "$AGENT_DIR/ACQUIRED.md" << EOF
 
 ---
 
 ## 情绪特征
 
-- **当前状态**: 平静 [😌]
+- **当前状态**: 平静 [${DEFAULT_EMOTION}]
 - **哭闹机制**: 被严厉批评时可能哭闹
 - **撒娇机制**: 用户太严厉时可能撒娇
 
@@ -306,10 +406,77 @@ EOF
 
 else
     # === 无任何配置文件，使用默认 ===
-    echo "No common config files found. Using defaults..."
-    echo "The agent should self-update through interaction."
+    echo "No common config files found."
+    
+    # 如果有GLOBAL.md，使用它作为基础
+    if [ -f "$GLOBAL_PERSONA" ]; then
+        echo "使用 GLOBAL.md 作为基础人格..."
+        
+        # 提取GLOBAL.md的值
+        GLOBAL_DECISION=$(extract_field "$GLOBAL_PERSONA" "决策倾向")
+        GLOBAL_SELF_PERCEPTION=$(extract_field "$GLOBAL_PERSONA" "自我认知")
+        GLOBAL_SOCIAL=$(extract_field "$GLOBAL_PERSONA" "社交倾向")
+        GLOBAL_HUMOR=$(extract_field "$GLOBAL_PERSONA" "幽默感")
+        GLOBAL_MORALITY=$(extract_field "$GLOBAL_PERSONA" "道德观")
+        
+        cat > "$AGENT_DIR/INNATE.md" << EOF
+# INNATE.md - 先天认知 ($AGENT_NAME)
 
-    cat > "$AGENT_DIR/INNATE.md" << EOF
+_从GLOBAL.md继承基础人格_
+
+---
+
+## 基础设定
+
+- **身份定位**: ${IDENTITY_NAME:-AI助手}
+- **本质**: AI Agent
+- **来源**: GLOBAL.md
+
+---
+
+## 初始化时间
+
+- $(date)
+
+## 数据来源
+
+- $GLOBAL_PERSONA
+EOF
+
+        cat > "$AGENT_DIR/ACQUIRED.md" << EOF
+# ACQUIRED.md - 天赋认知 ($AGENT_NAME)
+
+_从GLOBAL.md继承基础人格_
+
+---
+
+## 性格特征（来自GLOBAL.md）
+
+- **决策倾向**: ${GLOBAL_DECISION:-balanced}
+- **自我认知**: ${GLOBAL_SELF_PERCEPTION:-confident}
+- **社交倾向**: ${GLOBAL_SOCIAL:-adaptable}
+- **幽默感**: ${GLOBAL_HUMOR:-mild}
+- **道德观**: ${GLOBAL_MORALITY:-principled}
+
+---
+
+## 情绪特征
+
+- **当前状态**: 平静 [😌]
+- **情绪历史**: 来自GLOBAL.md
+
+---
+
+## 形成记录
+
+_初始从GLOBAL.md继承，可通过交互调整_
+EOF
+
+    else
+        # 完全默认
+        echo "使用默认人格..."
+
+        cat > "$AGENT_DIR/INNATE.md" << EOF
 # INNATE.md - 先天认知 ($AGENT_NAME)
 
 _自动初始化，需通过交互形成自我认知_
@@ -344,8 +511,8 @@ _自动初始化，需通过交互形成自我认知_
 - [ ] 建立沟通风格
 EOF
 
-    cat > "$AGENT_DIR/ACQUIRED.md" << 'EOF'
-# ACQUIRED.md - 天赋认知
+        cat > "$AGENT_DIR/ACQUIRED.md" << EOF
+# ACQUIRED.md - 天赋认知 ($AGENT_NAME)
 
 _初始为空，等待通过交互形成性格特征_
 
@@ -372,6 +539,7 @@ _初始为空，等待通过交互形成性格特征_
 
 _Agent应通过交互逐渐形成稳定的性格特征_
 EOF
+    fi
 fi
 
 # 生成 LEARNED.md（无论哪种模式都需要）

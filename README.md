@@ -104,6 +104,7 @@ powershell -ExecutionPolicy Bypass -File ~/.agents/skills/self-awareness/scripts
 
 | 文件 | 工具/框架 | 说明 |
 |------|----------|------|
+| GLOBAL.md | Self-Awareness | **全局基础人格**（所有Agent的默认） |
 | IDENTITY.md | OpenClaw | 身份设定 |
 | SOUL.md | OpenClaw | 人格特质 |
 | AGENTS.md | Codex, Cursor, Windsurf | 行为准则 |
@@ -118,11 +119,38 @@ powershell -ExecutionPolicy Bypass -File ~/.agents/skills/self-awareness/scripts
 | MEMORY.md | OpenClaw | 记忆/笔记 |
 | HEARTBEAT.md | OpenClaw | 心跳/节奏 |
 
-**扫描位置**：
-- `~/.agents/`
-- `~/.openclaw/workspace/`
-- `~/.claude/`
-- 环境变量: `AGENT_ROLE`, `AGENT_PERSONA`
+**扫描位置**（优先级从高到低）：
+1. Agent指定的工作区路径（参数2或 `AGENT_WORKSPACE_<name>` 环境变量）
+2. `~/.agents/agents/<agent_id>/`（Agent特定配置）
+3. `~/.agents/GLOBAL.md`（全局基础人格）
+4. `~/.openclaw/workspace/`
+5. `~/.claude/`
+
+**配置优先级**：
+```
+Agent特定配置 > GLOBAL.md > 工具配置文件 > 默认
+```
+
+### Agent自定义工作区
+
+Agent可以指定自己的工作区路径：
+
+```bash
+# 方式1: 通过环境变量
+export AGENT_WORKSPACE_researcher="$HOME/.openclaw-autoclaw/workspace"
+bash auto-init-cognition.sh researcher
+
+# 方式2: 通过脚本参数
+bash auto-init-cognition.sh researcher "$HOME/.openclaw-autoclaw/workspace"
+```
+
+### 全局基础人格 (GLOBAL.md)
+
+`~/.agents/GLOBAL.md` 定义所有Agent的默认人格基础：
+
+- 新Agent初始化时，如果没有特定配置，从GLOBAL.md继承
+- GLOBAL.md可被Agent特定配置覆盖
+- 修改GLOBAL.md影响所有使用默认配置的Agent
 
 ### 3. 使用
 
