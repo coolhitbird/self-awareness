@@ -63,13 +63,13 @@ foreach ($p in $pathsToCheck) {
 }
 
 # AGENTS.md
-if (Test-Path "$AGENTS_DIR\AGENTS.md" -or Test-Path "$OPENCLAW_DIR\AGENTS.md") {
+if ((Test-Path "$AGENTS_DIR\AGENTS.md") -or (Test-Path "$OPENCLAW_DIR\AGENTS.md")) {
     $FoundFiles["AGENTS.md"] = $true
     $SourcesFound++
 }
 
 # USER.md
-if (Test-Path "$AGENTS_DIR\USER.md" -or Test-Path "$OPENCLAW_DIR\USER.md") {
+if ((Test-Path "$AGENTS_DIR\USER.md") -or (Test-Path "$OPENCLAW_DIR\USER.md")) {
     $FoundFiles["USER.md"] = $true
     $SourcesFound++
 }
