@@ -514,8 +514,29 @@ powershell -ExecutionPolicy Bypass -File ~/.agents/skills/self-awareness/scripts
 
 ### 4. 初始化认知文件
 
-**方式一：自动初始化（推荐）**
-自动检测并初始化：
+**核心原则：Agent告诉Skill自己的配置在哪里**
+
+Skill不会预先知道所有AI客户端的目录，Agent需要主动告诉Skill：
+
+```bash
+# 方式1：Agent通过环境变量告诉Skill（推荐）
+# 在Agent的启动脚本或配置中设置：
+export AGENT_WORKSPACE_myagent="$HOME/.openclaw-autoclaw/workspace"
+bash auto-init-cognition.sh myagent
+
+# 方式2：通过命令行参数直接指定
+bash auto-init-cognition.sh myagent "$HOME/.openclaw-autoclaw/workspace"
+
+# PowerShell版本
+powershell -File auto-init-cognition.ps1 -AgentName "myagent" -AgentWorkspace "C:\path\to\workspace"
+```
+
+**为什么Agent需要告诉Skill？**
+- 不同AI客户端/Agent使用不同的配置目录
+- Agent最清楚自己的配置文件在哪里
+- 这是一个"声明式"的设计：Agent声明自己的身份和位置
+
+**自动初始化（会扫描常见位置作为fallback）**
 ```bash
 # Linux/macOS/Git Bash
 bash ~/.agents/skills/self-awareness/scripts/auto-init-cognition.sh [agent_name]

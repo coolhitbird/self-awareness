@@ -95,10 +95,35 @@ powershell -File auto-init-cognition.ps1 -AgentName "researcher" -AgentWorkspace
 #### 初始化流程
 
 1. 检查 Agent 是否已有认知文件 → 有则跳过
-2. 检查 Agent 自定义工作区（参数2或环境变量）
+2. **Agent指定的工作区**（参数2或环境变量，**Agent告诉skill**）
 3. 检查全局基础人格 `~/.agents/GLOBAL.md`
 4. 扫描常见配置文件（IDENTITY.md, SOUL.md, AGENTS.md 等）
 5. 生成 INNATE.md, ACQUIRED.md, LEARNED.md
+
+### Agent如何告诉Skill自己的配置位置？
+
+**核心原则：Agent告诉Skill，而不是Skill猜测**
+
+```bash
+# 方式1: Agent通过环境变量告诉Skill
+# 在Agent启动时设置
+export AGENT_WORKSPACE_main="$HOME/.openclaw-autoclaw/workspace"
+export AGENT_WORKSPACE_researcher="$HOME/.openclaw/workspace"
+
+# 然后运行初始化
+bash auto-init-cognition.sh main
+
+# 方式2: Agent通过参数直接告诉Skill
+bash auto-init-cognition.sh main "$HOME/.openclaw-autoclaw/workspace"
+
+# 方式3: PowerShell版本
+powershell -File auto-init-cognition.ps1 -AgentName "main" -AgentWorkspace "C:\path\to\workspace"
+```
+
+**为什么这样设计？**
+- 不同Agent/客户端使用不同目录（OpenClaw, AutoClaw, Claude Code等）
+- Agent最清楚自己的配置文件在哪里
+- Skill不需要预先知道所有可能的目录
 
 ### 3. 在 Agent 中使用
 
