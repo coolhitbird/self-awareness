@@ -59,8 +59,9 @@ mkdir -p "$AGENT_DIR"
 
 # 辅助函数：从文件提取字段
 # 支持多种格式:
-#   - **Name**: value  (冒号在粗体外)
+#   - **Name**: value  (冒号在粗体外，有空格)
 #   - **Name:** value  (冒号在粗体内)
+#   - **Name** value  (无冒号)
 #   - - Name: value    (无粗体)
 extract_field() {
     local file="$1"
@@ -68,9 +69,11 @@ extract_field() {
     if [ -f "$file" ]; then
         # 模式1: - **Name**: value (冒号在粗体外)
         grep -iE "^[[:space:]]*-\s+\*\*${field}\*\*[[:space:]]*:[[:space:]]*(.+)$" "$file" 2>/dev/null | sed 's/.*:[[:space:]]*//' | head -1 && return
-        # 模式2: - **Name:** value (冒号在粗体内)
-        grep -iE "^[[:space:]]*-\s+\*\*${field}:(.*)$" "$file" 2>/dev/null | sed 's/.*:[[:space:]]*//' | head -1 && return
-        # 模式3: - Name: value (无粗体)
+        # 模式2: - **Name:** value (冒号在粗体内) - 最常见
+        grep -iE "^[[:space:]]*-\s+\*\*${field}:\*\*(.+)$" "$file" 2>/dev/null | sed 's/.*\*\*[[:space:]]*//' | head -1 && return
+        # 模式3: - **Name** value (无冒号)
+        grep -iE "^[[:space:]]*-\s+\*\*${field}\*\*[[:space:]]+(.+)$" "$file" 2>/dev/null | sed 's/.*[[:space:]]*//' | head -1 && return
+        # 模式4: - Name: value (无粗体)
         grep -iE "^[[:space:]]*-\s+${field}:[[:space:]]*(.+)$" "$file" 2>/dev/null | sed 's/.*:[[:space:]]*//' | head -1 && return
     fi
 }
