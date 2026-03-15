@@ -1,5 +1,9 @@
 # install.ps1
-# Skill 安装脚本 - Windows PowerShell版本
+# Self-Awareness Skill Installation Script - Windows PowerShell
+
+# Force UTF-8 output to avoid encoding issues
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+$PSDefaultParameterValues['Out-File:Encoding'] = 'utf8'
 
 param(
     [switch]$SkipInit
@@ -9,47 +13,47 @@ $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $SkillDir = Split-Path -Parent $ScriptDir
 
 Write-Host "==========================================" -ForegroundColor Cyan
-Write-Host "  Self-Awareness Skill 安装脚本" -ForegroundColor Cyan
+Write-Host "  Self-Awareness Skill Installer" -ForegroundColor Cyan
 Write-Host "==========================================" -ForegroundColor Cyan
 Write-Host ""
 
-# 检测操作系统
+# Detect OS
 $IsWindows = $PSVersionTable.Platform -eq "Win32NT" -or $null -ne (Get-Command winver -ErrorAction SilentlyContinue)
-Write-Host "检测到操作系统: Windows" 
+Write-Host "Detected OS: Windows"
 Write-Host ""
 
-# 检查 PowerShell 版本
+# Check PowerShell version
 $psVersion = $PSVersionTable.PSVersion.Major
-Write-Host "PowerShell 版本: $psVersion"
+Write-Host "PowerShell version: $psVersion"
 
 if ($psVersion -lt 5) {
-    Write-Host "警告: 建议使用 PowerShell 5.0 或更高版本" -ForegroundColor Yellow
+    Write-Host "Warning: PowerShell 5.0+ recommended" -ForegroundColor Yellow
 }
 Write-Host ""
 
-# 检查必要工具
-Write-Host "检查依赖..." -ForegroundColor Cyan
+# Check dependencies
+Write-Host "Checking dependencies..." -ForegroundColor Cyan
 
-# 检查是否在 Git Bash 或 WSL 中
+# Check if in Git Bash or WSL
 $IsGitBash = $env:MSYSTEM -ne $null
 
 if ($IsGitBash) {
-    Write-Host "✓ 检测到 Git Bash 环境" -ForegroundColor Green
+    Write-Host "[OK] Git Bash environment detected" -ForegroundColor Green
 }
 
-# 检查 OpenClaw
+# Check OpenClaw
 $OpenClawPath = "$env:USERPROFILE\.openclaw\workspace"
 if (Test-Path $OpenClawPath) {
-    Write-Host "✓ 检测到 OpenClaw 工作区" -ForegroundColor Green
+    Write-Host "[OK] OpenClaw workspace detected" -ForegroundColor Green
 }
 
-# 检查 Claude
+# Check Claude
 $ClaudePath = "$env:USERPROFILE\.claude"
 if (Test-Path $ClaudePath) {
-    Write-Host "✓ 检测到 Claude 配置" -ForegroundColor Green
+    Write-Host "[OK] Claude config detected" -ForegroundColor Green
 }
 
-# 检查 .agents
+# Check .agents
 $AgentsPath = "$env:USERPROFILE\.agents"
 if (-not (Test-Path $AgentsPath)) {
     New-Item -ItemType Directory -Force -Path $AgentsPath | Out-Null
@@ -57,13 +61,13 @@ if (-not (Test-Path $AgentsPath)) {
 if (-not (Test-Path "$AgentsPath\agents")) {
     New-Item -ItemType Directory -Force -Path "$AgentsPath\agents" | Out-Null
 }
-Write-Host "✓ .agents 目录已创建" -ForegroundColor Green
+Write-Host "[OK] .agents directory ready" -ForegroundColor Green
 Write-Host ""
 
-# 运行初始化
+# Run initialization
 function Run-Initialization {
     Write-Host "==========================================" -ForegroundColor Cyan
-    Write-Host "  初始化认知文件" -ForegroundColor Cyan
+    Write-Host "  Initializing cognition files" -ForegroundColor Cyan
     Write-Host "==========================================" -ForegroundColor Cyan
     Write-Host ""
     
@@ -71,15 +75,15 @@ function Run-Initialization {
     if (Test-Path $InitScript) {
         & $InitScript -AgentName "default"
     } else {
-        Write-Host "错误: 找不到初始化脚本" -ForegroundColor Red
+        Write-Host "Error: Init script not found" -ForegroundColor Red
     }
 }
 
-# 询问是否初始化
+# Ask about initialization
 if ($SkipInit) {
-    Write-Host "跳过初始化 (--SkipInit)" -ForegroundColor Yellow
+    Write-Host "Skipping initialization (--SkipInit)" -ForegroundColor Yellow
 } else {
-    $response = Read-Host "是否立即初始化认知文件? [Y/n]"
+    $response = Read-Host "Initialize cognition files now? [Y/n]"
     if ($response -eq "" -or $response -eq "y" -or $response -eq "Y") {
         Run-Initialization
     }
@@ -87,14 +91,14 @@ if ($SkipInit) {
 
 Write-Host ""
 Write-Host "==========================================" -ForegroundColor Green
-Write-Host "  安装完成!" -ForegroundColor Green
+Write-Host "  Installation complete!" -ForegroundColor Green
 Write-Host "==========================================" -ForegroundColor Green
 Write-Host ""
-Write-Host "下一步:" -ForegroundColor Cyan
-Write-Host "  1. 在 Agent 的 system prompt 中引入 skill"
-Write-Host "  2. 认知文件位于: ~/.agents/agents/<agent_name>/"
+Write-Host "Next steps:" -ForegroundColor Cyan
+Write-Host "  1. Include this skill in your Agent's system prompt"
+Write-Host "  2. Cognition files location: ~/.agents/agents/<agent_name>/"
 Write-Host ""
-Write-Host "使用帮助:" -ForegroundColor Cyan
-Write-Host "  - 查看 README.md 了解完整功能"
-Write-Host "  - 查看 SKILL.md 了解技术细节"
+Write-Host "Help:" -ForegroundColor Cyan
+Write-Host "  - See README.md for full documentation"
+Write-Host "  - See SKILL.md for technical details"
 Write-Host ""

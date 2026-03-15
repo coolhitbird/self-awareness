@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.3.2] - 2026-03-15
+
+### Fixed
+- PowerShell encoding issues causing script parse errors
+- Chinese characters causing UTF-8 corruption
+
+### Changed
+- All scripts now use English output only (cross-platform safe)
+- PowerShell scripts: added `[Console]::OutputEncoding = [System.Text.Encoding]::UTF8`
+- Generated cognition files (INNATE.md etc.) still contain Chinese for user readability
+
 ## [v0.3.1] - 2026-03-14
 
 ### Fixed

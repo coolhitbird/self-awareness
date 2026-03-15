@@ -1,6 +1,6 @@
 #!/bin/bash
 # install.sh
-# Skill 安装脚本 - 自动检测系统并初始化
+# Self-Awareness Skill Installation Script - Auto-detect system and init
 
 set -e
 
@@ -8,11 +8,11 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SKILL_DIR="$(dirname "$SCRIPT_DIR")"
 
 echo "=========================================="
-echo "  Self-Awareness Skill 安装脚本"
+echo "  Self-Awareness Skill Installer"
 echo "=========================================="
 echo ""
 
-# 检测操作系统
+# Detect OS
 detect_os() {
     case "$(uname -s)" in
         Linux*|Darwin*)
@@ -28,30 +28,30 @@ detect_os() {
 }
 
 OS=$(detect_os)
-echo "检测到操作系统: $OS"
+echo "Detected OS: $OS"
 echo ""
 
-# 检查必要工具
+# Check required tools
 check_requirements() {
     if [ "$OS" = "unix" ]; then
         if ! command -v bash &> /dev/null; then
-            echo "错误: 需要 bash"
+            echo "Error: bash required"
             exit 1
         fi
-        echo "✓ Bash 已安装"
+        echo "[OK] Bash installed"
     elif [ "$OS" = "windows" ]; then
-        # 检查 PowerShell
+        # Check PowerShell
         if command -v pwsh &> /dev/null; then
-            echo "✓ PowerShell (pwsh) 已安装"
+            echo "[OK] PowerShell (pwsh) installed"
         elif command -v powershell &> /dev/null; then
-            echo "✓ PowerShell 已安装"
+            echo "[OK] PowerShell installed"
         else
-            echo "警告: 未检测到 PowerShell，Windows初始化脚本可能无法运行"
+            echo "[WARN] PowerShell not found, Windows init script may not work"
         fi
         
-        # 检查 Git Bash
+        # Check Git
         if command -v git &> /dev/null; then
-            echo "✓ Git 已安装"
+            echo "[OK] Git installed"
         fi
     fi
 }
@@ -59,31 +59,31 @@ check_requirements() {
 check_requirements
 echo ""
 
-# 创建必要的目录
+# Create required directories
 setup_directories() {
-    echo "创建必要目录..."
+    echo "Creating required directories..."
     
     mkdir -p "$HOME/.agents/agents"
-    echo "✓ $HOME/.agents/agents/"
+    echo "[OK] $HOME/.agents/agents/"
     
-    # OpenClaw 目录
+    # OpenClaw directory
     if [ -d "$HOME/.openclaw/workspace" ]; then
-        echo "✓ 检测到 OpenClaw 工作区"
+        echo "[OK] OpenClaw workspace detected"
     fi
     
-    # Claude 目录
+    # Claude directory
     if [ -d "$HOME/.claude" ]; then
-        echo "✓ 检测到 Claude 配置"
+        echo "[OK] Claude config detected"
     fi
 }
 
 setup_directories
 echo ""
 
-# 运行初始化
+# Run initialization
 run_initialization() {
     echo "=========================================="
-    echo "  初始化认知文件"
+    echo "  Initializing cognition files"
     echo "=========================================="
     echo ""
     
@@ -101,8 +101,8 @@ run_initialization() {
     fi
 }
 
-# 询问是否初始化
-read -p "是否立即初始化认知文件? [Y/n]: " -n 1 -r
+# Ask about initialization
+read -p "Initialize cognition files now? [Y/n]: " -n 1 -r
 echo ""
 if [[ $REPLY =~ ^[Yy]$ ]] || [[ -z $REPLY ]]; then
     run_initialization
@@ -110,14 +110,14 @@ fi
 
 echo ""
 echo "=========================================="
-echo "  安装完成!"
+echo "  Installation complete!"
 echo "=========================================="
 echo ""
-echo "下一步:"
-echo "  1. 在 Agent 的 system prompt 中引入 skill"
-echo "  2. 认知文件位于: ~/.agents/agents/<agent_name>/"
+echo "Next steps:"
+echo "  1. Include this skill in your Agent's system prompt"
+echo "  2. Cognition files location: ~/.agents/agents/<agent_name>/"
 echo ""
-echo "使用帮助:"
-echo "  - 查看 README.md 了解完整功能"
-echo "  - 查看 SKILL.md 了解技术细节"
+echo "Help:"
+echo "  - See README.md for full documentation"
+echo "  - See SKILL.md for technical details"
 echo ""

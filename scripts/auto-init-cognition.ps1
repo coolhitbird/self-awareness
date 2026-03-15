@@ -1,32 +1,36 @@
 # auto-init-cognition.ps1
-# 自动初始化认知文件 (PowerShell版本)
+# Auto-initialize cognition files (PowerShell version)
 #
-# 核心设计：Agent告诉Skill自己的配置在哪里
+# Core Design: Agent tells Skill where its config is located
 #
-# 使用方式：
+# Usage:
 #   .\auto-init-cognition.ps1 -AgentName "myagent" -AgentWorkspace "C:\path\to\workspace"
 #
-# 环境变量（Agent可设置）：
-#   - AGENT_WORKSPACE_<name>: Agent告诉Skill自己的配置目录
-#   - DEFAULT_AGENT: 默认Agent名称
-#   - AGENTS_ROOT: Agent配置文件根目录
+# Environment variables (Agent can set):
+#   - AGENT_WORKSPACE_<name>: Agent tells Skill its config directory
+#   - DEFAULT_AGENT: Default agent name
+#   - AGENTS_ROOT: Agent config root directory
+
+# Force UTF-8 output
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+$PSDefaultParameterValues['Out-File:Encoding'] = 'utf8'
 
 param(
     [string]$AgentName = "default",
     [string]$AgentWorkspace = ""
 )
 
-# 核心设计：Agent告诉Skill自己的配置目录
+# Core Design: Agent tells Skill its config directory
 $AGENTS_ROOT = if ($env:AGENTS_ROOT) { $env:AGENTS_ROOT } else { "$env:USERPROFILE\.agents" }
 $AGENTS_DATA_DIR = "$AGENTS_ROOT\agents"
 $GLOBAL_PERSONA = "$AGENTS_ROOT\GLOBAL.md"
 
-# skill目录（用于获取默认模板）
+# Skill directory (for default templates)
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $SkillDir = Split-Path -Parent $ScriptDir
 $DEFAULT_GLOBAL = "$SkillDir\data\GLOBAL.md"
 
-# Agent告诉Skill自己的配置目录（参数优先，否则检查环境变量）
+# Agent tells Skill its config directory (param priority, then env var)
 $envVarName = "AGENT_WORKSPACE_$AgentName"
 if ([string]::IsNullOrEmpty($AgentWorkspace) -and $env:$envVarName) {
     $AgentWorkspace = $env:$envVarName
@@ -36,22 +40,22 @@ $AgentWorkspace = $AgentWorkspace -replace '\\', '/'
 $AGENT_DIR = "$AGENTS_DATA_DIR\$AgentName"
 
 Write-Host "==========================================" -ForegroundColor Cyan
-Write-Host "  Self-Awareness 认知文件初始化" -ForegroundColor Cyan
+Write-Host "  Self-Awareness Cognition File Init" -ForegroundColor Cyan
 Write-Host "==========================================" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "Agent: $AgentName" -ForegroundColor Cyan
-Write-Host "Agent工作区: $AgentWorkspace" -ForegroundColor Cyan
+Write-Host "Agent workspace: $AgentWorkspace" -ForegroundColor Cyan
 
-# 检查是否有指定agent的独立目录
+# Check if agent already has cognition files
 if ((Test-Path $AGENT_DIR) -and (Test-Path "$AGENT_DIR\INNATE.md")) {
-    Write-Host "Agent '$AgentName' 已存在认知文件，跳过初始化。" -ForegroundColor Yellow
+    Write-Host "Agent '$AgentName' already has cognition files, skipping." -ForegroundColor Yellow
     exit 0
 }
 
-# 创建agent目录
+# Create agent directory
 New-Item -ItemType Directory -Force -Path $AGENT_DIR | Out-Null
 
-# 辅助函数：从文件提取字段
+# Helper: Extract field from file
 function Extract-Field {
     param($File, $Field)
     if (Test-Path $File) {
@@ -76,12 +80,12 @@ function Extract-Field {
 $FoundFiles = @{}
 $SourcesFound = 0
 
-# 步骤1: Agent告知的工作区
+# Step 1: Agent-told workspace
 Write-Host ""
-Write-Host "=== 步骤1: 检查Agent告知的工作区 ===" -ForegroundColor Green
+Write-Host "=== Step 1: Check Agent-told workspace ===" -ForegroundColor Green
 
 if (-not [string]::IsNullOrEmpty($AgentWorkspace)) {
-    Write-Host "使用Agent告知的工作区: $AgentWorkspace" -ForegroundColor Cyan
+    Write-Host "Using Agent-told workspace: $AgentWorkspace" -ForegroundColor Cyan
     
     $workspaceFiles = @(
         "$AgentWorkspace/IDENTITY.md",
@@ -94,27 +98,27 @@ if (-not [string]::IsNullOrEmpty($AgentWorkspace)) {
         if (Test-Path $f) {
             $FoundFiles[$f] = $true
             $SourcesFound++
-            Write-Host "  - 发现: $([System.IO.Path]::GetFileName($f))" -ForegroundColor Green
+            Write-Host "  - Found: $([System.IO.Path]::GetFileName($f))" -ForegroundColor Green
         }
     }
 } else {
-    Write-Host "  Agent未指定工作区" -ForegroundColor Yellow
+    Write-Host "  Agent did not specify workspace" -ForegroundColor Yellow
 }
 
-# 步骤2: 全局基础人格
+# Step 2: Global base persona
 Write-Host ""
-Write-Host "=== 步骤2: 检查全局基础人格 ===" -ForegroundColor Green
+Write-Host "=== Step 2: Check global base persona ===" -ForegroundColor Green
 
-# 优先使用skill自带的模板
+# Prefer skill's built-in template
 $GLOBAL_SOURCE = ""
 if (Test-Path $DEFAULT_GLOBAL) {
     $GLOBAL_SOURCE = $DEFAULT_GLOBAL
-    Write-Host "使用Skill默认模板: $DEFAULT_GLOBAL" -ForegroundColor Green
+    Write-Host "Using Skill default template: $DEFAULT_GLOBAL" -ForegroundColor Green
 } elseif (Test-Path $GLOBAL_PERSONA) {
     $GLOBAL_SOURCE = $GLOBAL_PERSONA
-    Write-Host "使用用户配置: $GLOBAL_PERSONA" -ForegroundColor Green
+    Write-Host "Using user config: $GLOBAL_PERSONA" -ForegroundColor Green
 } else {
-    Write-Host "未找到全局基础人格，将使用默认值" -ForegroundColor Yellow
+    Write-Host "No global base persona found, using defaults" -ForegroundColor Yellow
 }
 
 if ($GLOBAL_SOURCE) {
@@ -122,91 +126,91 @@ if ($GLOBAL_SOURCE) {
     $SourcesFound++
 }
 
-# 步骤3: Agent本地配置
+# Step 3: Agent local config
 Write-Host ""
-Write-Host "=== 步骤3: 检查Agent本地配置 ===" -ForegroundColor Green
+Write-Host "=== Step 3: Check Agent local config ===" -ForegroundColor Green
 
 foreach ($file in @("IDENTITY.md", "SOUL.md", "AGENTS.md", "USER.md")) {
     $path = "$AGENTS_ROOT\$file"
     if (Test-Path $path) {
         $FoundFiles[$path] = $true
         $SourcesFound++
-        Write-Host "  - 发现: $file in $AGENTS_ROOT" -ForegroundColor Green
+        Write-Host "  - Found: $file in $AGENTS_ROOT" -ForegroundColor Green
     }
 }
 
-# 输出找到的源文件
+# Output found sources
 if ($SourcesFound -gt 0) {
     Write-Host ""
-    Write-Host "找到 $SourcesFound 个源文件" -ForegroundColor Cyan
+    Write-Host "Found $SourcesFound source files" -ForegroundColor Cyan
 }
 
-# 提取配置
+# Extract config
 $IDENTITY_NAME = ""
 $IDENTITY_NATURE = ""
 $SOUL_CORE = ""
 $GLOBAL_DECISION = ""
 $GLOBAL_SELF_PERCEPTION = ""
 
-# 从Agent告知的工作区提取
+# Extract from Agent-told workspace
 if (-not [string]::IsNullOrEmpty($AgentWorkspace)) {
     $workspaceId = "$AgentWorkspace/IDENTITY.md"
     if (Test-Path $workspaceId) {
         $IDENTITY_NAME = Extract-Field $workspaceId "Name"
         $IDENTITY_NATURE = Extract-Field $workspaceId "Creature"
-        Write-Host "  - 从工作区提取: $IDENTITY_NAME" -ForegroundColor Green
+        Write-Host "  - From workspace: $IDENTITY_NAME" -ForegroundColor Green
     }
 }
 
-# 从本地配置提取
+# Extract from local config
 if ([string]::IsNullOrEmpty($IDENTITY_NAME)) {
     $localId = "$AGENTS_ROOT\IDENTITY.md"
     if (Test-Path $localId) {
         $IDENTITY_NAME = Extract-Field $localId "Name"
         $IDENTITY_NATURE = Extract-Field $localId "Creature"
-        Write-Host "  - 从本地提取: $IDENTITY_NAME" -ForegroundColor Green
+        Write-Host "  - From local: $IDENTITY_NAME" -ForegroundColor Green
     }
 }
 
-# 从GLOBAL提取
+# From GLOBAL
 if ($GLOBAL_SOURCE) {
-    $GLOBAL_DECISION = Extract-Field $GLOBAL_SOURCE "决策倾向"
-    $GLOBAL_SELF_PERCEPTION = Extract-Field $GLOBAL_SOURCE "自我认知"
+    $GLOBAL_DECISION = Extract-Field $GLOBAL_SOURCE "Decision"
+    $GLOBAL_SELF_PERCEPTION = Extract-Field $GLOBAL_SOURCE "SelfPerception"
 }
 
-# 默认值
-if ([string]::IsNullOrEmpty($IDENTITY_NAME)) { $IDENTITY_NAME = "AI助手" }
+# Defaults
+if ([string]::IsNullOrEmpty($IDENTITY_NAME)) { $IDENTITY_NAME = "AI Assistant" }
 if ([string]::IsNullOrEmpty($IDENTITY_NATURE)) { $IDENTITY_NATURE = "AI Agent" }
 if ([string]::IsNullOrEmpty($GLOBAL_DECISION)) { $GLOBAL_DECISION = "balanced" }
 if ([string]::IsNullOrEmpty($GLOBAL_SELF_PERCEPTION)) { $GLOBAL_SELF_PERCEPTION = "confident" }
 
-# 生成文件
+# Generate files
 Write-Host ""
-Write-Host "生成认知文件..." -ForegroundColor Cyan
+Write-Host "Generating cognition files..." -ForegroundColor Cyan
 
 $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
 
 # INNATE.md
 $innateContent = @"
-# INNATE.md - 先天认知 ($AgentName)
+# INNATE.md - Innate Cognition ($AgentName)
 
-_从Agent配置初始化_
-
----
-
-## 基础设定
-
-- **身份定位**: $IDENTITY_NAME
-- **本质**: $IDENTITY_NATURE
-- **来源**: Agent告知的工作区
+_Init from Agent config_
 
 ---
 
-## 初始化时间
+## Basic Settings
+
+- **Identity**: $IDENTITY_NAME
+- **Nature**: $IDENTITY_NATURE
+- **Source**: Agent-told workspace
+
+---
+
+## Init Time
 
 - $timestamp
 
-## 检测到的配置文件
+## Detected Config Files
 
 $($FoundFiles.Keys | ForEach-Object { "- $_" } | Out-String)
 "@
@@ -215,53 +219,53 @@ $innateContent | Out-File -FilePath "$AGENT_DIR\INNATE.md" -Encoding UTF8
 
 # ACQUIRED.md
 $acquiredContent = @"
-# ACQUIRED.md - 天赋认知 ($AgentName)
+# ACQUIRED.md - Acquired Cognition ($AgentName)
 
-_从交互中逐渐形成的倾向和性格特征_
-
----
-
-## 性格特征
-
-- **决策倾向**: $GLOBAL_DECISION
-- **自我认知**: $GLOBAL_SELF_PERCEPTION
+_Traits and characteristics formed from interactions_
 
 ---
 
-## 情绪特征
+## Personality Traits
 
-- **当前状态**: 平静 [😌]
+- **Decision Style**: $GLOBAL_DECISION
+- **Self Perception**: $GLOBAL_SELF_PERCEPTION
 
 ---
 
-## 形成记录
+## Emotional Traits
 
-_初始化时从配置推断，随着交互会逐渐调整_
+- **Current State**: calm [😌]
+
+---
+
+## Formation Record
+
+_Inferred from config during init, will adjust over time_
 "@
 
 $acquiredContent | Out-File -FilePath "$AGENT_DIR\ACQUIRED.md" -Encoding UTF8
 
 # LEARNED.md
 $learnedContent = @"
-# LEARNED.md - 后天认知 ($AgentName)
+# LEARNED.md - Learned Cognition ($AgentName)
 
-_从交互中学习到的经验、偏好和调整_
-
----
-
-## 交互记忆
-
-_暂无记录_
+_Learned experiences, preferences and adjustments from interactions_
 
 ---
 
-## 用户反馈
+## Interaction Memory
 
-_暂无反馈_
+_No records yet_
 
 ---
 
-## 初始化
+## User Feedback
+
+_No feedback yet_
+
+---
+
+## Init
 
 - $timestamp
 "@
@@ -270,9 +274,9 @@ $learnedContent | Out-File -FilePath "$AGENT_DIR\LEARNED.md" -Encoding UTF8
 
 Write-Host ""
 Write-Host "==========================================" -ForegroundColor Green
-Write-Host "  初始化完成!" -ForegroundColor Green
+Write-Host "  Initialization complete!" -ForegroundColor Green
 Write-Host "==========================================" -ForegroundColor Green
 Write-Host ""
 Write-Host "Agent: $AgentName" -ForegroundColor Cyan
-Write-Host "位置: $AGENT_DIR" -ForegroundColor Cyan
-Write-Host "创建: INNATE.md, ACQUIRED.md, LEARNED.md" -ForegroundColor Cyan
+Write-Host "Location: $AGENT_DIR" -ForegroundColor Cyan
+Write-Host "Created: INNATE.md, ACQUIRED.md, LEARNED.md" -ForegroundColor Cyan
