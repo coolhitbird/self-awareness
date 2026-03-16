@@ -94,11 +94,15 @@ Write-Host "==========================================" -ForegroundColor Green
 Write-Host "  Installation complete!" -ForegroundColor Green
 Write-Host "==========================================" -ForegroundColor Green
 Write-Host ""
+Write-Host "IMPORTANT: Restart Gateway to activate skill!" -ForegroundColor Yellow
+Write-Host ""
 Write-Host "Next steps:" -ForegroundColor Cyan
-Write-Host "  1. Include this skill in your Agent's system prompt"
-Write-Host "  2. Cognition files location: ~/.agents/agents/<agent_name>/"
+Write-Host "  1. Restart Gateway: openclaw gateway restart"
+Write-Host "  2. Include this skill in your Agent's system prompt"
+Write-Host "  3. Cognition files location: ~/.agents/agents/<agent_name>/"
 Write-Host ""
 Write-Host "Help:" -ForegroundColor Cyan
+Write-Host "  - See QUICKSTART.md for quick enable"
 Write-Host "  - See README.md for full documentation"
 Write-Host "  - See SKILL.md for technical details"
 Write-Host ""

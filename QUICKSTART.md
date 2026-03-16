@@ -1,5 +1,10 @@
 # Self-Awareness Quick Enable Guide
 
+> ⚠️ **重要：安装后必须重启 Gateway！**
+> ```bash
+> openclaw gateway restart
+> ```
+
 ## 一键启用"自我认知"功能
 
 ### 方法 1: 在 SOUL.md 开头添加

@@ -5,6 +5,13 @@ description: "赋予Agent伪自我意识机制。通过反馈回路强制执行�
 
 # Self-Awareness Skill
 
+> ⚠️ **重要提示：安装后必须重启 Gateway！**
+> 
+> 安装完成后，需要重启 Gateway 使 skill 生效：
+> ```bash
+> openclaw gateway restart
+> ```
+
 本Skill为Agent构建"伪自我意识"机制，通过工程化方式模拟人类自我认知过程。
 
 ## 基础因子定义
@@ -999,9 +1006,106 @@ def respond(agent_id, message):
 
 ---
 
+## 热加载机制
+
+### 问题背景
+
+认知文件（INNATE.md, ACQUIRED.md, LEARNED.md）默认只在 Agent 启动时读取一次。
+如果需要在运行时更新认知，需要热加载机制。
+
+### 解决方案
+
+#### 1. 关键词触发刷新
+
+在 Agent 的"自我质疑"流程中，检测以下关键词自动刷新：
+
+| 触发词 | 说明 |
+|--------|------|
+| 记住 | 用户要求记住某些内容 |
+| 之前 | 用户提到之前的对话 |
+| 刷新 | 用户明确要求刷新 |
+| 重新认识 | 用户想重新初始化认知 |
+
+```
+用户输入 → 触发词检测 → 是 → 重新读取认知文件 → 继续流程
+```
+
+#### 2. 手动命令刷新
+
+用户可以明确要求 Agent 刷新认知：
+
+```
+用户: "刷新一下你的认知" / "重新加载你的配置"
+Agent: → 重新读取 INNATE.md, ACQUIRED.md, LEARNED.md
+     → 回复: "认知已刷新，当前状态: [😌]"
+```
+
+#### 3. 时间戳检测
+
+在 ACQUIRED.md 中记录最后更新时间：
+
+```markdown
+## 元信息
+- 最后更新: 2026-03-16 10:30:00
+```
+
+Agent 每次响应前检查：
+- 如果超过 5 分钟 → 静默刷新（可选）
+
+#### 4. 敏感操作确认
+
+对于重大认知变更（如身份定位修改），需要确认：
+
+```
+Agent: "你想把我定义为'诗人'吗？确认后我会更新 INNATE.md"
+用户: "确认"
+Agent: → 更新 INNATE.md → "好的，我现在是诗人了 [😊]"
+```
+
+### 实现示例
+
+```python
+def should_refresh_cognition(user_input):
+    """检查是否需要刷新认知"""
+    refresh_keywords = ["记住", "之前", "刷新", "重新认识", "重新加载"]
+    
+    for keyword in refresh_keywords:
+        if keyword in user_input:
+            return True
+    return False
+
+def refresh_cognition(agent_id):
+    """刷新认知文件"""
+    import os
+    agent_dir = os.path.expanduser(f"~/.agents/agents/{agent_id}")
+    
+    files = {
+        "INNATE": os.path.join(agent_dir, "INNATE.md"),
+        "ACQUIRED": os.path.join(agent_dir, "ACQUIRED.md"),
+        "LEARNED": os.path.join(agent_dir, "LEARNED.md")
+    }
+    
+    cognition = {}
+    for name, path in files.items():
+        if os.path.exists(path):
+            with open(path, "r", encoding="utf-8") as f:
+                cognition[name] = f.read()
+    
+    return cognition
+```
+
+### 注意事项
+
+1. **性能考量** - 不要每次响应都读取文件，只在必要时刷新
+2. **版本控制** - 刷新前保存当前版本，便于回滚
+3. **原子写入** - 更新文件时使用原子操作（先写临时文件再替换）
+
+---
+
 ## 待实现
 
 - [ ] 记忆系统对接
+- [ ] 热加载机制（关键词触发 + 手动命令）
 - [x] 状态机 + 版本控制
 - [x] 丰富情绪状态 + 外显标识
 - [x] 触发规则（关键词+语义混合）
