@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.4.0] - 2026-03-16
+
+### Added
+- Avatar generation feature (颜文字 + 图形头像)
+- avatar_generator.py script with multi-provider support
+- QUICKSTART.md for easy enable
+- Support for agent self-generation (recommended), FluxImageGen, OpenAI DALL-E, etc.
+
+### Fixed
+- UTF-8 encoding in PowerShell scripts (moved to installed version)
+- Field alias support in avatar generator
+
+### Changed
+- Default provider changed to "agent" (let AI generate its own avatar)
+
 ## [v0.3.2] - 2026-03-15
 
 ### Fixed
