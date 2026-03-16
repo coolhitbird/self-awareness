@@ -9,13 +9,17 @@ All notable changes to this project will be documented in this file.
 - avatar_generator.py script with multi-provider support
 - QUICKSTART.md for easy enable
 - Support for agent self-generation (recommended), FluxImageGen, OpenAI DALL-E, etc.
+- Auto-trigger mechanism: init/first_response/periodic_5/idle/emotion_decay/heartbeat
+- Restart Gateway reminder in install scripts
+- Hot reload mechanism (keyword trigger + manual command)
 
 ### Fixed
-- UTF-8 encoding in PowerShell scripts (moved to installed version)
+- UTF-8 encoding in PowerShell scripts
 - Field alias support in avatar generator
 
 ### Changed
 - Default provider changed to "agent" (let AI generate its own avatar)
+- SKILL.md: added prominent restart warning
 
 ## [v0.3.2] - 2026-03-15
 
