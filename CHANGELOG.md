@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ## [v0.5.1] - 2026-03-19
 
+### Added
+- **OpenCode Skill打包**: 添加标准参考文件
+  - `criteria.md` - 成功标准
+  - `execution.md` - 使用流程
+  - `state.md` - 状态结构
+  - `planning.md` - 开发计划
+  - `verification.md` - 验证清单
+- 更新 `SKILL.md` frontmatter (version, homepage, metadata)
+- 更新 `_meta.json` 版本信息
+
 ### Fixed
 - PowerShell `install.ps1`: `$IsWindows` variable conflict (renamed to `$RunningOnWindows`)
 - Verified `auto-init-cognition.sh` has proper LF line endings

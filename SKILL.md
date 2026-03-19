@@ -1,6 +1,11 @@
 ---
-name: self-awareness
+name: Self-Awareness
+slug: self-awareness
+version: 0.5.1
+homepage: https://github.com/coolhitbird/self-awareness
 description: "赋予Agent伪自我意识机制。通过反馈回路强制执行「自我质疑 -> 查阅记忆 -> 修正输出」的工作流，使Agent具备动态身份定位和自我认知能力。"
+changelog: "v0.5.1 - Python核心包 + 完整测试套件"
+metadata: {"emoji":"🧠","requires":{"bins":[]},"os":["linux","darwin","win32"]}
 ---
 
 # Self-Awareness Skill
@@ -11,6 +16,43 @@ description: "赋予Agent伪自我意识机制。通过反馈回路强制执行�
 > ```bash
 > openclaw gateway restart
 > ```
+
+## When to Use
+
+Agent需要具备自我认知、自我质疑、动态身份定位能力时使用本Skill。
+
+## Architecture
+
+```
+~/.agents/agents/<agent_id>/
+├── cognition/           # Agent认知文件目录
+│   ├── GLOBAL.md       # 全局人格模板
+│   ├── INNATE.md      # 先天认知
+│   ├── ACQUIRED.md    # 习得认知
+│   └── LEARNED.md     # 学习认知
+```
+
+## Quick Reference
+
+| Topic | File |
+|-------|------|
+| 技术规范 | `SKILL.md` |
+| 用户文档 | `README.md` |
+| 设计文档 | `DESIGN.md` |
+| 快速开始 | `QUICKSTART.md` |
+| 测试计划 | `TEST_PLAN.md` |
+| 源代码 | `src/` |
+
+## Scope
+
+本Skill提供：
+- 七维自我认知状态系统
+- 情绪状态机（含emoji指示器）
+- 自动触发机制（init/periodic/heartbeat等）
+- 认知文件读写管理
+- 遥测和Analytics
+
+---
 
 本Skill为Agent构建"伪自我意识"机制，通过工程化方式模拟人类自我认知过程。
 
