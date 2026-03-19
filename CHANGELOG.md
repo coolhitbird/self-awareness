@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.5.0] - 2026-03-19
+
+### Added
+- **Python Core Package** (`src/`): Complete Python implementation
+  - `cognition/`: Cognition file reader/writer with three-layer support
+  - `models/`: Seven-dimensional state system with extensible registry
+  - `engines/`: 7 evaluation engines for all dimensions
+  - `triggers/`: 6 trigger types + SelfAwarenessEngine workflow
+  - `avatar/`: Kaomoji mapping + text/visual avatar generation
+  - `telemetry/`: Event recording + Analytics reporting
+- **Test Suite** (`tests/`): Complete test coverage
+  - TC-01~TC-08 integration tests
+  - All modules tested and passing
+- **Full Test Script** (`test_full.py`): Automated 8-test suite
+- **Test Plan** (`TEST_PLAN.md`): Detailed test cases for agent integration
+
+### Changed
+- Restructured from shell scripts to Python package
+- Extensible dimension registry (supports future dimensions)
+- Emotion state machine expanded to 10 states with intensity
+
+### Fixed
+- Module import issues resolved (relative import fix)
+- UTF-8 encoding in all tests
+
 ## [v0.4.0] - 2026-03-16
 
 ### Added
