@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.5.1] - 2026-03-19
+
+### Fixed
+- PowerShell `install.ps1`: `$IsWindows` variable conflict (renamed to `$RunningOnWindows`)
+- Verified `auto-init-cognition.sh` has proper LF line endings
+
 ## [v0.5.0] - 2026-03-19
 
 ### Added
