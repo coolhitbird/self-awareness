@@ -18,8 +18,8 @@ Write-Host "==========================================" -ForegroundColor Cyan
 Write-Host ""
 
 # Detect OS
-$IsWindows = $PSVersionTable.Platform -eq "Win32NT" -or $null -ne (Get-Command winver -ErrorAction SilentlyContinue)
-Write-Host "Detected OS: Windows"
+$RunningOnWindows = $PSVersionTable.Platform -eq "Win32NT" -or $null -ne (Get-Command winver -ErrorAction SilentlyContinue)
+Write-Host "Detected OS: $(if ($RunningOnWindows) { 'Windows' } else { 'Other' })"
 Write-Host ""
 
 # Check PowerShell version
