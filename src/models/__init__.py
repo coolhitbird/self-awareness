@@ -22,17 +22,23 @@ from .core_dimensions import (
     EvolutionDimension,
     NavigationDimension,
 )
+from .base import BaseProfile
+from .emotion import EmotionData, EmotionIntensity
+from .behavior import BehaviorProfile
 
 __all__ = [
+    # Dimensions
     "BaseDimension",
     "DimensionConfig", 
     "DimensionRegistry",
     "DimensionType",
+    # State
     "EmotionState",
     "EMOTION_EMOJI",
     "DimensionScore",
     "SevenDimensionalState",
     "StateManager",
+    # Core dimensions
     "ExistentialDimension",
     "CoherenceDimension",
     "MeaningDimension",
@@ -40,4 +46,9 @@ __all__ = [
     "RelationalDimension",
     "EvolutionDimension",
     "NavigationDimension",
+    # New modules
+    "BaseProfile",
+    "EmotionData",
+    "EmotionIntensity",
+    "BehaviorProfile",
 ]

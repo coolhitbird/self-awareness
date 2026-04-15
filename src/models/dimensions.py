@@ -9,7 +9,8 @@ from typing import Any, Callable
 
 
 class DimensionType(Enum):
-    """Seven core dimensions of self-awareness."""
+    """Twelve dimensions of self-awareness (7 core + 5 extended)."""
+    # Core 7
     EXISTENTIAL = "existential"
     COHERENCE = "coherence"
     MEANING = "meaning"
@@ -17,6 +18,30 @@ class DimensionType(Enum):
     RELATIONAL = "relational"
     EVOLUTION = "evolution"
     NAVIGATION = "navigation"
+    # Extended 5
+    CREATIVITY = "creativity"
+    RESILIENCE = "resilience"
+    WISDOM = "wisdom"
+    AUTHENTICITY = "authenticity"
+    HUMOR = "humor"
+
+    @classmethod
+    def core_dimensions(cls) -> list[str]:
+        """Get core 7 dimensions"""
+        return [
+            "existential", "coherence", "meaning", "autonomy",
+            "relational", "evolution", "navigation"
+        ]
+
+    @classmethod
+    def extended_dimensions(cls) -> list[str]:
+        """Get extended 5 dimensions"""
+        return ["creativity", "resilience", "wisdom", "authenticity", "humor"]
+
+    @classmethod
+    def all_dimensions(cls) -> list[str]:
+        """Get all 12 dimensions"""
+        return cls.core_dimensions() + cls.extended_dimensions()
 
 
 @dataclass
