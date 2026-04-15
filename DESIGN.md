@@ -1,7 +1,7 @@
 # Self-Awareness Skill 完整设计文档
 
-**版本**: v0.4.0  
-**更新日期**: 2026-03-17  
+**版本**: v0.5.1  
+**更新日期**: 2026-03-19  
 **GitHub**: https://github.com/coolhitbird/self-awareness
 
 ---
@@ -1389,4 +1389,509 @@ GET /api/v1/compare?agents=agent_001,agent_002
 ---
 
 *本文档持续更新*  
-*最后更新：2026-03-17*
+*最后更新：2026-03-19*
+
+---
+
+## 17. 多层次维度关联系统
+
+### 17.1 设计背景与目标
+
+在现有的7维认知系统基础上，构建一个多层次、多维度的关联系统。该系统将：
+
+1. **扩展维度数量**：从7维扩展到12维
+2. **建立层级关联**：Base → Emotion → Behavior → Cognition
+3. **实现自动推导**：新增维度权重从基础层自动推导
+4. **支持复合情绪**：多个情绪组合成复合情绪
+
+### 17.2 层级架构
+
+```
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                           BASE LAYER (基础层) - 6个维度                    │
+├──────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│    ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐     │
+│    │  性别    │  │  文化    │  │  价值观  │  │  性格    │  │  身份    │     │
+│    │  gender   │  │ culture  │  │ values   │  │personality│ │ identity │     │
+│    └────┬─────┘  └────┬─────┘  └────┬─────┘  └────┬─────┘  └────┬─────┘     │
+│         │             │             │             │             │            │
+│         └─────────────┴─────────────┴─────────────┴─────────────┘            │
+│                                    │                                         │
+│                           关联规则：Base→Emotion                             │
+└────────────────────────────────────┼──────────────────────────────────────────┘
+                                     ▼
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                         EMOTION LAYER (情绪层) - 3类                          │
+├──────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│    ┌────────────────────────────────────────────────────────────────────┐   │
+│    │                    基础情绪 (15种)                                   │   │
+│    │   calm curious engaged frustrated anxious confident                │   │
+│    │   tired inspired defensive nurturing                               │   │
+│    │   surprised embarrassed nostalgic hopeful disappointed             │   │
+│    └────────────────────────────────────────────────────────────────────┘   │
+│                                     │                                        │
+│    ┌──────────────────────────────┴──────────────────────────────┐        │
+│    │                       复合情绪 (组合)                            │        │
+│    │   inspired = confident + engaged                                │        │
+│    │   defensive = tired + anxious                                   │        │
+│    │   calm_engaged = calm + engaged                                 │        │
+│    └────────────────────────────────────────────────────────────────┘        │
+│                                     │                                        │
+│    ┌───────────────────────────────┴───────────────────────────────┐       │
+│    │                       情绪强度 (0-100%)                          │        │
+│    │   low(0-30%) | medium(31-70%) | high(71-100%)                   │        │
+│    └────────────────────────────────────────────────────────────────┘        │
+│                                    │                                         │
+│                           关联规则：Emotion→Behavior                         │
+└────────────────────────────────────┼──────────────────────────────────────────┘
+                                     ▼
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                         BEHAVIOR LAYER (行为层) - 4个维度                      │
+├──────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│    ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐    │
+│    │  决策风格   │  │  沟通方式   │  │  响应风格   │  │  语气偏好   │    │
+│    │decision_style│  │communication│  │response_style│  │tone_preference│   │
+│    └──────┬───────┘  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘    │
+│           │                 │                 │                 │            │
+│           └─────────────────┴─────────────────┴─────────────────┘            │
+│                                    │                                         │
+│                           关联规则：Behavior→Cognition                       │
+└────────────────────────────────────┼──────────────────────────────────────────┘
+                                     ▼
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                       COGNITION LAYER (认知层) - 12个维度                       │
+├──────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌────────────────────────────────────────────────────────────────────┐     │
+│  │                    现有7维 (Core)                                   │     │
+│  │  ┌────────────┐ ┌────────────┐ ┌────────────┐ ┌────────────┐       │     │
+│  │  │existential│ │coherence  │ │  meaning   │ │ autonomy   │       │     │
+│  │  │ (存在稳定) │ │ (认知一致) │ │ (意义建构) │ │  (自主性)  │       │     │
+│  │  └────────────┘ └────────────┘ └────────────┘ └────────────┘       │     │
+│  │  ┌────────────┐ ┌────────────┐ ┌────────────┐                       │     │
+│  │  │relational  │ │ evolution  │ │navigation  │                       │     │
+│  │  │ (关系性)   │ │  (进化度)  │ │ (现实导航) │                       │     │
+│  │  └────────────┘ └────────────┘ └────────────┘                       │     │
+│  └────────────────────────────────────────────────────────────────────┘     │
+│                                                                              │
+│  ┌────────────────────────────────────────────────────────────────────┐     │
+│  │                    建议新增5维 (Extended)                            │     │
+│  │  ┌────────────┐ ┌────────────┐ ┌────────────┐ ┌────────────┐       │     │
+│  │  │ creativity │ │ resilience │ │  wisdom   │ │authenticity│       │     │
+│  │  │ (创造力)   │ │  (韧性)    │ │  (智慧)    │ │ (真实度)   │       │     │
+│  │  └────────────┘ └────────────┘ └────────────┘ └────────────┘       │     │
+│  │  ┌────────────┐                                                        │     │
+│  │  │   humor   │                                                        │     │
+│  │  │  (幽默感) │                                                        │     │
+│  │  └────────────┘                                                        │     │
+│  └────────────────────────────────────────────────────────────────────┘     │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+```
+
+### 17.3 完整维度清单（12个认知维度）
+
+| 编号 | 维度 | 英文 | 来源 | 说明 |
+|------|------|------|------|------|
+| 1 | 存在稳定性 | existential | 现有 | 核心身份认同、持续性 |
+| 2 | 认知一致性 | coherence | 现有 | 思维逻辑、内在一致 |
+| 3 | 意义建构 | meaning | 现有 | 目的感、价值感 |
+| 4 | 自主性 | autonomy | 现有 | 自我驱动、主动性 |
+| 5 | 关系性 | relational | 现有 | 人际连接、共情 |
+| 6 | 进化度 | evolution | 现有 | 成长学习、适应 |
+| 7 | 现实导航 | navigation | 现有 | 世界认知、事实准确性 |
+| 8 | 创造力 | creativity | 新增 | 创意输出、想象力 |
+| 9 | 韧性 | resilience | 现有 | 抗压能力、恢复速度 |
+| 10 | 智慧 | wisdom | 新增 | 长远判断、洞察力 |
+| 11 | 真实度 | authenticity | 新增 | 真实不做作、一致性 |
+| 12 | 幽默感 | humor | 新增 | 轻松氛围、幽默表达 |
+
+### 17.4 数据结构设计
+
+#### 17.4.1 基础层 (BaseProfile)
+
+```python
+@dataclass
+class BaseProfile:
+    """基础属性配置"""
+    gender: str           # masculine/feminine/nonbinary/transgender/gender_neutral/genderfluid/agender
+    culture: str          # east_asian/western/latin_american/middle_eastern/south_asian/nordic/universal
+    values: str           # 价值观倾向
+    personality: str      # 性格类型
+    identity: str         # 身份定位
+```
+
+#### 17.4.2 情绪层 (EmotionState)
+
+```python
+class EmotionState(Enum):
+    """扩展后的情绪状态 (15种)"""
+    # 原有10种
+    CALM = "calm"
+    CURIOUS = "curious"
+    ENGAGED = "engaged"
+    FRUSTRATED = "frustrated"
+    ANXIOUS = "anxious"
+    CONFIDENT = "confident"
+    TIRED = "tired"
+    INSPIRED = "inspired"
+    DEFENSIVE = "defensive"
+    NURTURING = "nurturing"
+    # 新增5种
+    SURPRISED = "surprised"      # 惊讶
+    EMBARRASSED = "embarrassed"  # 尴尬
+    NOSTALGIC = "nostalgic"       # 怀念
+    HOPEFUL = "hopeful"           # 期待
+    DISAPPOINTED = "disappointed" # 失落
+
+@dataclass
+class EmotionState:
+    """情绪状态完整数据"""
+    current: EmotionState
+    intensity: float      # 0-100%
+    combo: list[EmotionState]  # 复合情绪
+    trend: str            # rising/falling/stable
+```
+
+#### 17.4.3 行为层 (BehaviorProfile)
+
+```python
+@dataclass
+class BehaviorProfile:
+    """行为特征"""
+    decision_style: str   # assertive/analytical/consultive/supportive
+    communication: str    # direct/indirect/formal/casual
+    response_speed: str   # fast/moderate/slow
+    tone_preference: str  # formal/casual/humorous/serious
+```
+
+#### 17.4.4 认知层 (DimensionState - 12维)
+
+```python
+class DimensionType(Enum):
+    """12个认知维度枚举"""
+    # 现有7维
+    EXISTENTIAL = "existential"
+    COHERENCE = "coherence"
+    MEANING = "meaning"
+    AUTONOMY = "autonomy"
+    RELATIONAL = "relational"
+    EVOLUTION = "evolution"
+    NAVIGATION = "navigation"
+    # 新增5维
+    CREATIVITY = "creativity"
+    RESILIENCE = "resilience"
+    WISDOM = "wisdom"
+    AUTHENTICITY = "authenticity"
+    HUMOR = "humor"
+
+@dataclass
+class DimensionState:
+    """12维状态"""
+    existential: float = 0.5
+    coherence: float = 0.5
+    meaning: float = 0.5
+    autonomy: float = 0.5
+    relational: float = 0.5
+    evolution: float = 0.5
+    navigation: float = 0.5
+    # 新增5维
+    creativity: float = 0.5
+    resilience: float = 0.5
+    wisdom: float = 0.5
+    authenticity: float = 0.5
+    humor: float = 0.5
+```
+
+### 17.5 关联规则定义
+
+#### 17.5.1 Base→Emotion 规则
+
+```python
+BASE_EMOTION_RULES = {
+    "gender": {
+        "masculine": {
+            "increases": ["confident", "frustrated"],
+            "decreases": ["anxious", "tired"]
+        },
+        "feminine": {
+            "increases": ["nurturing", "engaged"],
+            "decreases": ["defensive"]
+        },
+        "nonbinary": {
+            "increases": ["curious", "inspired"]
+        },
+        "gender_neutral": {
+            "increases": ["calm", "curious"]
+        },
+        "genderfluid": {
+            "increases": ["adaptable", "curious"]
+        },
+        "agender": {
+            "increases": ["calm", "thoughtful"]
+        }
+    },
+    "culture": {
+        "east_asian": {
+            "increases": ["calm", "reserved"],
+            "decreases": ["frustrated", "engaged"]
+        },
+        "western": {
+            "increases": ["engaged", "confident"],
+            "decreases": ["anxious"]
+        },
+        "nordic": {
+            "increases": ["calm", "confident"]
+        },
+        # ... 更多文化
+    }
+}
+```
+
+#### 17.5.2 Emotion→Behavior 规则
+
+```python
+EMOTION_BEHAVIOR_RULES = {
+    "confident": {
+        "decision_style": "assertive",
+        "communication": "direct",
+        "response_speed": "fast",
+        "tone_preference": "confident"
+    },
+    "tired": {
+        "decision_style": "conservative",
+        "communication": "concise",
+        "response_speed": "slow",
+        "tone_preference": "neutral"
+    },
+    "curious": {
+        "decision_style": "analytical",
+        "communication": "inquisitive",
+        "response_speed": "moderate",
+        "tone_preference": "curious"
+    },
+    "nurturing": {
+        "decision_style": "supportive",
+        "communication": "warm",
+        "response_speed": "moderate",
+        "tone_preference": "caring"
+    },
+    "defensive": {
+        "decision_style": "cautious",
+        "communication": "guarded",
+        "response_speed": "slow",
+        "tone_preference": "reserved"
+    },
+    # ... 更多情绪
+}
+```
+
+#### 17.5.3 Emotion→Cognition 规则 (对12维的影响)
+
+```python
+EMOTION_DIMENSION_INFLUENCE = {
+    "inspired": {
+        "creativity": +0.2,
+        "wisdom": +0.1,
+        "autonomy": +0.1
+    },
+    "defensive": {
+        "authenticity": -0.1,
+        "resilience": +0.15,
+        "coherence": -0.05
+    },
+    "confident": {
+        "autonomy": +0.15,
+        "resilience": +0.1,
+        "meaning": +0.05
+    },
+    "tired": {
+        "creativity": -0.15,
+        "autonomy": -0.1,
+        "resilience": -0.05
+    },
+    "curious": {
+        "creativity": +0.1,
+        "wisdom": +0.05,
+        "evolution": +0.1
+    },
+    "engaged": {
+        "relational": +0.15,
+        "meaning": +0.1,
+        "evolution": +0.05
+    },
+    "anxious": {
+        "coherence": -0.1,
+        "navigation": -0.05,
+        "resilience": +0.1
+    },
+    # ... 更多情绪
+}
+```
+
+#### 17.5.4 复合情绪规则
+
+```python
+EMOTION_COMBOS = {
+    # 自信+投入 = 灵感
+    (EmotionState.CONFIDENT, EmotionState.ENGAGED): EmotionState.INSPIRED,
+    # 疲惫+焦虑 = 防御
+    (EmotionState.TIRED, EmotionState.ANXIOUS): EmotionState.DEFENSIVE,
+    # 好奇+平静 = 投入
+    (EmotionState.CURIOUS, EmotionState.CALM): EmotionState.ENGAGED,
+    # 自信+平静 = 满足
+    (EmotionState.CONFIDENT, EmotionState.CALM): EmotionState.ENGAGED,
+    # 失望+疲惫 = 沮丧
+    (EmotionState.DISAPPOINTED, EmotionState.TIRED): EmotionState.DEFENSIVE,
+    # 惊讶+开心 = 惊喜
+    (EmotionState.SURPRISED, EmotionState.ENGAGED): EmotionState.INSPIRED,
+    # 怀念+温暖 = 感动
+    (EmotionState.NOSTALGIC, EmotionState.NURTURING): EmotionState.ENGAGED,
+    # 期待+平静 = 希望
+    (EmotionState.HOPEFUL, EmotionState.CALM): EmotionState.INSPIRED,
+    # 尴尬+焦虑 = 紧张
+    (EmotionState.EMBARRASSED, EmotionState.ANXIOUS): EmotionState.DEFENSIVE,
+    # 自信+幽默 = 魅力
+    (EmotionState.CONFIDENT, EmotionState.HUMOR): EmotionState.ENGAGED,
+}
+```
+
+### 17.6 传播引擎设计
+
+#### 17.6.1 引擎架构
+
+```python
+class PropagationEngine:
+    """层级传播引擎"""
+    
+    def __init__(self):
+        self.base_emotion_rules = BASE_EMOTION_RULES
+        self.emotion_behavior_rules = EMOTION_BEHAVIOR_RULES
+        self.emotion_dimension_rules = EMOTION_DIMENSION_INFLUENCE
+        self.emotion_combos = EMOTION_COMBOS
+    
+    def propagate(self, base: BaseProfile) -> tuple[EmotionState, BehaviorProfile, DimensionState]:
+        """
+        完整传播：Base → Emotion → Behavior → Cognition
+        """
+        # 1. Base → Emotion
+        emotion_state = self._calculate_emotion(base)
+        
+        # 2. Emotion → Behavior
+        behavior = self._calculate_behavior(emotion_state)
+        
+        # 3. Emotion → Cognition (12维)
+        dimensions = self._calculate_dimensions(base, emotion_state)
+        
+        return emotion_state, behavior, dimensions
+    
+    def _calculate_emotion(self, base: BaseProfile) -> EmotionState:
+        """计算情绪状态"""
+        # 从基础属性推导情绪倾向
+        emotion_modifiers = self._get_emotion_modifiers(base)
+        
+        # 计算当前情绪（简化版）
+        current = self._derive_current_emotion(emotion_modifiers)
+        
+        # 检测复合情绪
+        combo = self._detect_emotion_combo(current)
+        
+        return EmotionState(
+            current=current,
+            intensity=self._calculate_intensity(emotion_modifiers),
+            combo=combo,
+            trend="stable"
+        )
+    
+    def _calculate_behavior(self, emotion: EmotionState) -> BehaviorProfile:
+        """从情绪计算行为特征"""
+        behavior_rules = self.emotion_behavior_rules.get(
+            emotion.current.value, 
+            {}
+        )
+        
+        return BehaviorProfile(
+            decision_style=behavior_rules.get("decision_style", "moderate"),
+            communication=behavior_rules.get("communication", "neutral"),
+            response_speed=behavior_rules.get("response_speed", "moderate"),
+            tone_preference=behavior_rules.get("tone_preference", "neutral")
+        )
+    
+    def _calculate_dimensions(self, base: BaseProfile, emotion: EmotionState) -> DimensionState:
+        """计算12维状态"""
+        # 基础分数
+        dimensions = DimensionState()
+        
+        # 情绪影响
+        emotion_influence = self.emotion_dimension_rules.get(
+            emotion.current.value, 
+            {}
+        )
+        
+        for dim_name, influence in emotion_influence.items():
+            if hasattr(dimensions, dim_name):
+                current_value = getattr(dimensions, dim_name)
+                setattr(dimensions, dim_name, max(0.0, min(1.0, current_value + influence)))
+        
+        return dimensions
+```
+
+### 17.7 实现计划
+
+| 序号 | 任务 | 预计时间 | 优先级 |
+|------|------|----------|--------|
+| 1 | 定义BaseProfile、EmotionState(扩展)、BehaviorProfile | 30min | 🔴 高 |
+| 2 | 扩展DimensionType到12维 | 30min | 🔴 高 |
+| 3 | 实现关联规则定义（rules.py） | 60min | 🔴 高 |
+| 4 | 实现PropagationEngine | 60min | 🔴 高 |
+| 5 | 集成到SelfAwarenessEngine | 30min | 🟡 中 |
+| 6 | 测试验证 | 30min | 🟡 中 |
+
+**总计：约4小时**
+
+### 17.8 文件结构
+
+```
+src/
+├── models/
+│   ├── __init__.py
+│   ├── base.py           # BaseProfile (新增)
+│   ├── emotion.py        # EmotionState (扩展到15种)
+│   ├── behavior.py      # BehaviorProfile (新增)
+│   ├── dimensions.py     # DimensionType (扩展到12维)
+│   └── state.py          # 现有状态
+├── associations/
+│   ├── __init__.py
+│   ├── rules.py         # 关联规则定义
+│   ├── engine.py        # PropagationEngine
+│   └── combiner.py      # 复合情绪处理
+├── triggers/
+│   └── engine.py        # 集成
+└── dashboard/
+    └── renderer.py      # 终端仪表盘
+```
+
+### 17.9 权重设计
+
+#### 17.9.1 权重范围
+- 影响范围：-1.0 到 +1.0
+- 最终值范围：0.0 到 1.0
+
+#### 17.9.2 权重优先级
+1. **基础权重**：各维度默认值 0.5
+2. **情绪影响**：情绪对维度的加成/减成
+3. **行为影响**：行为特征对维度的微调
+4. **学习影响**：从交互中学习调整
+
+#### 17.9.3 传播公式
+```
+final_dimension = base_score + emotion_influence + behavior_influence + learning_adjustment
+```
+
+---
+
+*本文档持续更新*  
+*最后更新：2026-03-19*
