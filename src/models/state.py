@@ -22,6 +22,12 @@ class EmotionState(Enum):
     INSPIRED = "inspired"
     DEFENSIVE = "defensive"
     NURTURING = "nurturing"
+    # New 5
+    SURPRISED = "surprised"
+    EMBARRASSED = "embarrassed"
+    NOSTALGIC = "nostalgic"
+    HOPEFUL = "hopeful"
+    DISAPPOINTED = "disappointed"
 
 
 EMOTION_EMOJI = {
@@ -35,6 +41,12 @@ EMOTION_EMOJI = {
     EmotionState.INSPIRED: "[✨]",
     EmotionState.DEFENSIVE: "[🛡️]",
     EmotionState.NURTURING: "[🤗]",
+    # New 5
+    EmotionState.SURPRISED: "[😲]",
+    EmotionState.EMBARRASSED: "[😳]",
+    EmotionState.NOSTALGIC: "[🥹]",
+    EmotionState.HOPEFUL: "[🤞]",
+    EmotionState.DISAPPOINTED: "[😞]",
 }
 
 

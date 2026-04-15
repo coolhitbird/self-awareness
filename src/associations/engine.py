@@ -44,16 +44,30 @@ class PropagationEngine:
 
     def _calculate_emotion(self, base: BaseProfile) -> EmotionData:
         """Calculate emotion state from base profile"""
-        # Collect all emotion modifiers from base attributes
         increases = []
         decreases = []
 
         for attr in ["gender", "culture", "values", "personality", "identity"]:
-            value = getattr(base, attr, "universal")
-            rules = self.base_emotion_rules.get(attr, {}).get(value, {})
+            value = getattr(base, attr, None)
+            if value is None:
+                continue
             
-            increases.extend(rules.get("increases", []))
-            decreases.extend(rules.get("decreases", []))
+            # Handle list values (e.g., values=['curiosity'])
+            if isinstance(value, list):
+                for v in value:
+                    rules = self.base_emotion_rules.get(attr, {}).get(v, {})
+                    increases.extend(rules.get("increases", []))
+                    decreases.extend(rules.get("decreases", []))
+            # Handle dict values (e.g., personality={'openness': 0.8})
+            elif isinstance(value, dict):
+                for k, v in value.items():
+                    rules = self.base_emotion_rules.get(attr, {}).get(k, {})
+                    increases.extend(rules.get("increases", []))
+                    decreases.extend(rules.get("decreases", []))
+            else:
+                rules = self.base_emotion_rules.get(attr, {}).get(value, {})
+                increases.extend(rules.get("increases", []))
+                decreases.extend(rules.get("decreases", []))
 
         # Calculate base emotion (simplified: use first increase or default to calm)
         if increases:
@@ -97,10 +111,10 @@ class PropagationEngine:
             tone_preference=behavior_rules.get("tone_preference", "neutral")
         )
 
-    def _calculate_dimensions(self, base: BaseProfile, emotion: EmotionData) -> dict[str, float]:
+    def _calculate_dimensions(self, base: BaseProfile, emotion: EmotionData) -> dict[DimensionType, float]:
         """Calculate 12 dimension scores"""
-        # Start with base scores
-        dimensions = {dim: 0.5 for dim in DimensionType.all_dimensions()}
+        # Start with base scores (use enum keys)
+        dimensions = {dim: 0.5 for dim in DimensionType}
 
         # Apply emotion influence
         emotion_influence = self.emotion_dimension_rules.get(
@@ -109,11 +123,10 @@ class PropagationEngine:
         )
 
         for dim_name, influence in emotion_influence.items():
-            if dim_name in dimensions:
-                dimensions[dim_name] = max(0.0, min(1.0, dimensions[dim_name] + influence))
-
-        # Apply subtle adjustments based on base profile
-        # (This could be expanded with more rules)
+            # Find matching enum
+            dim_enum = next((d for d in DimensionType if d.value == dim_name), None)
+            if dim_enum and dim_enum in dimensions:
+                dimensions[dim_enum] = max(0.0, min(1.0, dimensions[dim_enum] + influence))
 
         return dimensions
 

@@ -49,6 +49,22 @@ KAOMOJI_MAP: dict[EmotionState, list[str]] = {
     EmotionState.NURTURING: [
         "(´◡´)", "(♡˙︶˙♡)", "(◕‿◕✿)", "(｡♥‿♥｡)", "(✿´‿`)",
     ],
+    # New 5 emotions
+    EmotionState.SURPRISED: [
+        "(O_O)", "(ﾟДﾟ)", "Σ(°Д°)", "(⊙_⊙)", "w(°o°)w",
+    ],
+    EmotionState.EMBARRASSED: [
+        "(///◡///)", "(^^;)", "(*_*)", "(-_-;)", "o(^_^)o",
+    ],
+    EmotionState.NOSTALGIC: [
+        "(T_T)", "(@_@)", "(>_<)", ".ﾟ｡ﾟ(o_ _)o", "(--)",
+    ],
+    EmotionState.HOPEFUL: [
+        "(*^▽^*)", "(◕‿◕)", "(✧◡✧)", "ヽ(>∀<☆)ノ", "(pray)",
+    ],
+    EmotionState.DISAPPOINTED: [
+        "(╥_╥)", "(T_T)", "(-_-メ)", "(╯︵╰,)", "o(╥﹏╥)o",
+    ],
 }
 
 
