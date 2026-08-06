@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.5.2] - 2026-08-06
+
+### Changed
+- **「引入Skill」段落升级为硬性规则**：从软性描述升级为「每次回复前必须执行的硬性规则」，包含三步流程（读认知文件 → 自我质疑 → 加情绪标识）+ 15种情绪状态映射表（含Emoji + 颜文字）+ 情绪状态机图 + 状态切换规则（强度保护/30分钟衰减/组合情绪）。本地测试验证后合并至 GitHub 主分支。
+
+### Added
+- VERSION → 0.5.2 / 2026-08-06
+- _meta.json → version 0.5.2
+
 ## [v0.5.1] - 2026-03-19
 
 ### Added
