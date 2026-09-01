@@ -1,10 +1,11 @@
 ---
 name: Self-Awareness
 slug: self-awareness
-version: 0.5.1
+agent_created: true
+version: 0.5.3
 homepage: https://github.com/coolhitbird/self-awareness
-description: "赋予Agent伪自我意识机制。通过反馈回路强制执行「自我质疑 -> 查阅记忆 -> 修正输出」的工作流，使Agent具备动态身份定位和自我认知能力。"
-changelog: "v0.5.1 - Python核心包 + 完整测试套件"
+description: "当用户需要 Agent 具备自我认知、动态身份定位、自我质疑修正或人格化情绪能力时使用。通过「自我质疑→查阅记忆→修正输出」回路与七维框架持久化自我。"
+changelog: "v0.5.3 - 回填 description 路由公式与 agent_created 元数据"
 metadata: {"emoji":"🧠","requires":{"bins":[]},"os":["linux","darwin","win32"]}
 ---
 

@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.5.3] - 2026-09-01
+
+### Added
+- SKILL.md frontmatter 新增 `agent_created: true`（纳入 SkillManage 可管理范围）
+
+### Changed
+- description 改写为「当用户需要…时使用」路由公式，明确触发场景
+- 统一版本号至 0.5.3（frontmatter / VERSION / _meta.json 三处曾不一致：0.5.1 / 0.5.2 / 0.5.2）
+- SKILL.md `changelog` 字段同步更新为 v0.5.3 说明
+
+> 注：本补丁基于 v0.5.2 (4e6fb06) 派生分支 `v05-patch`，仅做元数据回填，不含 v0.4.1 的 SKILL.md 瘦身（v0.4.1 仅作参考 tag，不进主线）。
+
 ## [v0.5.2] - 2026-08-06
 
 ### Changed
