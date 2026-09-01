@@ -1,2 +1,6 @@
 # Skill self-awareness
 # 伪自我意识Agent Skill
+
+# Python 构建产物（不应入包/入 git）
+__pycache__/
+*.pyc
