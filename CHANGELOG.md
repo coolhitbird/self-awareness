@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.4.1] - 2026-09-01
+
+### Changed
+- **SKILL.md 瘦身**：从 1226 行 / 38KB 拆分为 415 行正文 + `references/` 四个参考文件（factors.md 14 因子全表、emotions.md 情绪状态机、avatar.md 头像设计、automation.md 热加载与自动触发），消除巨型 Prompt 反模式
+- `description` 改为标准路由公式（"当用户需要…时使用"），长度 156→73 字
+- 删除 SKILL.md 正文中的寒暄词「我来帮你」（违反 self-awareness 自身铁律 12）
+- 补 `agent_created: true` frontmatter 字段，使 SkillManage 可管理
+
+### Fixed
+- 顺带修复上游 skill-studio `audit.py` 的 `py_compile` 误报：语法检查改为内存编译，不再在被审计 skill 的 `scripts/__pycache__/` 写下 `.pyc` 再误报为残留
+
 ## [v0.4.0] - 2026-03-16
 
 ### Added
