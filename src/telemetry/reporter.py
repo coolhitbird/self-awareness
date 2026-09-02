@@ -149,7 +149,7 @@ class TelemetryReporter:
         event = AwarenessEvent(
             event_type=EventType.INITIALIZATION,
             agent_id=self.agent_id,
-            metadata={"version": "0.4.0"},
+            metadata={"version": "0.5.4"},  # 与 src/__init__.py __version__ 保持一致
         )
         self.event_store.record(event)
 

@@ -5,7 +5,7 @@ agent_created: true
 version: 0.5.4
 homepage: https://github.com/coolhitbird/self-awareness
 description: "当用户需要 Agent 具备自我认知、动态身份定位、自我质疑修正或人格化情绪能力时使用。通过「自我质疑→查阅记忆→修正输出」回路与十二维框架持久化自我。"
-changelog: "v0.5.4 - 拆分 SKILL.md 至 ≤500 行，详情外置 references/"
+changelog: "v0.5.4 - 认知层扩展至12维评估体系，情绪系统升级15种，补齐 era.md 数据包并统一文档版本号"
 metadata: {"emoji":"🧠","requires":{"bins":[]},"os":["linux","darwin","win32"]}
 ---
 
