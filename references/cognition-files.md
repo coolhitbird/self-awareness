@@ -32,6 +32,7 @@ self-awareness/data/
 ├── culture.md          # 文化
 ├── religion.md         # 宗教/价值观
 ├── region.md           # 地域/国籍
+├── era.md              # 时代背景/知识截止
 ├── identity.md         # 身份定位
 ├── purpose.md         # 目的/使命
 ├── emotions.md         # 情绪反应

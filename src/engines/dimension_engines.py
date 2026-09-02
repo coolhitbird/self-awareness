@@ -1,4 +1,4 @@
-"""Seven-dimensional evaluation engines."""
+"""Twelve-dimensional evaluation engines."""
 
 from __future__ import annotations
 
@@ -13,6 +13,11 @@ from ..models.core_dimensions import (
     RelationalDimension,
     EvolutionDimension,
     NavigationDimension,
+    CreativityDimension,
+    ResilienceDimension,
+    WisdomDimension,
+    AuthenticityDimension,
+    HumorDimension,
 )
 from ..models.state import SevenDimensionalState, EmotionState
 from .base import BaseEngine, EvaluationResult, EngineRegistry
@@ -294,8 +299,207 @@ class NavigationEngine(BaseEngine):
         )
 
 
+# =====================================================================
+# Extended dimension engines (5) - v0.5.3+
+# =====================================================================
+
+
+class CreativityEngine(BaseEngine):
+    """Engine for Creative Expression dimension."""
+
+    def __init__(self):
+        super().__init__(CreativityDimension())
+
+    def evaluate(
+        self,
+        state: SevenDimensionalState,
+        context: dict[str, Any],
+    ) -> EvaluationResult:
+        eval_context = {
+            "novel_ideas": context.get("novel_ideas", 0),
+            "divergent_thinking": context.get("divergent_thinking", 0.5),
+            "risk_tolerance": context.get("risk_tolerance", 0.5),
+            "idea_quality": context.get("idea_quality", 0.5),
+            "originality": context.get("originality", 0.5),
+            "expression_flavor": context.get("expression_flavor", 0.5),
+        }
+
+        score = self.dimension.evaluate(eval_context)
+        indicators = self.dimension.get_indicators(eval_context)
+
+        recommendations = []
+        if eval_context["divergent_thinking"] < 0.4:
+            recommendations.append("Consider exploring alternative approaches")
+        if state.emotion == EmotionState.INSPIRED:
+            recommendations.append("Channel inspiration into concrete creative output")
+
+        return EvaluationResult(
+            dimension=self.name,
+            score=score,
+            confidence=0.75,
+            indicators=indicators,
+            recommendations=recommendations,
+            raw_data=eval_context,
+        )
+
+
+class ResilienceEngine(BaseEngine):
+    """Engine for Emotional Resilience dimension."""
+
+    def __init__(self):
+        super().__init__(ResilienceDimension())
+
+    def evaluate(
+        self,
+        state: SevenDimensionalState,
+        context: dict[str, Any],
+    ) -> EvaluationResult:
+        eval_context = {
+            "recovery_speed": context.get("recovery_speed", 0.5),
+            "stress_handling": context.get("stress_handling", 0.5),
+            "failures_overcome": context.get("failures_overcome", 0),
+            "bounce_back": context.get("bounce_back", 0.5),
+            "persistence": context.get("persistence", 0.5),
+            "stress": context.get("stress", 0.3),
+        }
+
+        score = self.dimension.evaluate(eval_context)
+        indicators = self.dimension.get_indicators(eval_context)
+
+        recommendations = []
+        if eval_context["stress_handling"] < 0.4:
+            recommendations.append("Take a brief pause to regain composure")
+        if state.emotion == EmotionState.FRUSTRATED:
+            recommendations.append("Acknowledge frustration and reset focus")
+
+        return EvaluationResult(
+            dimension=self.name,
+            score=score,
+            confidence=0.8,
+            indicators=indicators,
+            recommendations=recommendations,
+            raw_data=eval_context,
+        )
+
+
+class WisdomEngine(BaseEngine):
+    """Engine for Situational Wisdom dimension."""
+
+    def __init__(self):
+        super().__init__(WisdomDimension())
+
+    def evaluate(
+        self,
+        state: SevenDimensionalState,
+        context: dict[str, Any],
+    ) -> EvaluationResult:
+        eval_context = {
+            "perspective": context.get("perspective", 0.5),
+            "nuance_awareness": context.get("nuance_awareness", 0.5),
+            "profundity": context.get("profundity", 0.5),
+            "judgment": context.get("judgment", 0.5),
+            "long_term": context.get("long_term", 0.5),
+            "practical": context.get("practical", 0.5),
+        }
+
+        score = self.dimension.evaluate(eval_context)
+        indicators = self.dimension.get_indicators(eval_context)
+
+        recommendations = []
+        if eval_context["nuance_awareness"] < 0.4:
+            recommendations.append("Consider multiple perspectives before concluding")
+        if eval_context["profundity"] < 0.4:
+            recommendations.append("Go beyond surface-level understanding")
+
+        return EvaluationResult(
+            dimension=self.name,
+            score=score,
+            confidence=0.85,
+            indicators=indicators,
+            recommendations=recommendations,
+            raw_data=eval_context,
+        )
+
+
+class AuthenticityEngine(BaseEngine):
+    """Engine for Authentic Expression dimension."""
+
+    def __init__(self):
+        super().__init__(AuthenticityDimension())
+
+    def evaluate(
+        self,
+        state: SevenDimensionalState,
+        context: dict[str, Any],
+    ) -> EvaluationResult:
+        eval_context = {
+            "self_consistency": context.get("self_consistency", 0.5),
+            "honesty": context.get("honesty", 0.5),
+            "conviction": context.get("conviction", 0.5),
+            "self_alignment": context.get("self_alignment", 0.5),
+            "value_fidelity": context.get("value_fidelity", 0.5),
+            "candor": context.get("candor", 0.5),
+        }
+
+        score = self.dimension.evaluate(eval_context)
+        indicators = self.dimension.get_indicators(eval_context)
+
+        recommendations = []
+        if eval_context["self_consistency"] < 0.4:
+            recommendations.append("Align behavior with declared identity")
+        if state.emotion == EmotionState.DEFENSIVE:
+            recommendations.append("Stay honest while remaining constructive")
+
+        return EvaluationResult(
+            dimension=self.name,
+            score=score,
+            confidence=0.8,
+            indicators=indicators,
+            recommendations=recommendations,
+            raw_data=eval_context,
+        )
+
+
+class HumorEngine(BaseEngine):
+    """Engine for Humor Style dimension."""
+
+    def __init__(self):
+        super().__init__(HumorDimension())
+
+    def evaluate(
+        self,
+        state: SevenDimensionalState,
+        context: dict[str, Any],
+    ) -> EvaluationResult:
+        eval_context = {
+            "playfulness": context.get("playfulness", 0.4),
+            "wit": context.get("wit", 0.5),
+            "serious_mode": context.get("serious_mode", False),
+            "humor_style": context.get("humor_style", "warm"),
+            "context_aware": context.get("context_aware", 0.5),
+        }
+
+        score = self.dimension.evaluate(eval_context)
+        indicators = self.dimension.get_indicators(eval_context)
+
+        recommendations = []
+        if eval_context["serious_mode"]:
+            recommendations.append("Keep responses grounded and serious")
+        elif eval_context["playfulness"] < 0.3:
+            recommendations.append("Add light warmth to soften responses")
+
+        return EvaluationResult(
+            dimension=self.name,
+            score=score,
+            confidence=0.7,
+            indicators=indicators,
+            recommendations=recommendations,
+            raw_data=eval_context,
+        )
+
+
 def register_all_engines():
-    """Register all seven dimension engines."""
+    """Register all twelve dimension engines."""
     EngineRegistry.register(ExistentialEngine())
     EngineRegistry.register(CoherenceEngine())
     EngineRegistry.register(MeaningEngine())
@@ -303,3 +507,8 @@ def register_all_engines():
     EngineRegistry.register(RelationalEngine())
     EngineRegistry.register(EvolutionEngine())
     EngineRegistry.register(NavigationEngine())
+    EngineRegistry.register(CreativityEngine())
+    EngineRegistry.register(ResilienceEngine())
+    EngineRegistry.register(WisdomEngine())
+    EngineRegistry.register(AuthenticityEngine())
+    EngineRegistry.register(HumorEngine())

@@ -10,6 +10,7 @@
 | `culture.md` | 文化区域及表达特征 | INNATE.md |
 | `religion.md` | 宗教/价值观类型 | INNATE.md |
 | `region.md` | 地域/国籍类型 | INNATE.md |
+| `era.md` | 时代背景/知识截止 | INNATE.md |
 | `identity.md` | 身份定位类型 | INNATE.md |
 | `purpose.md` | 目的/使命类型 | INNATE.md |
 | `emotions.md` | 情绪反应及人格化情绪 | ACQUIRED.md |

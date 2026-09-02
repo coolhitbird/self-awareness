@@ -1,6 +1,6 @@
 """Self-awareness skill for AI agents."""
 
-__version__ = "0.4.0"
+__version__ = "0.5.4"
 
 from .cognition import CognitionReader, CognitionWriter, LayerType
 

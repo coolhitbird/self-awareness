@@ -6,9 +6,11 @@ sys.path.insert(0, 'src')
 from models import (
     DimensionRegistry,
     SevenDimensionalState,
+    TwelveDimensionalState,
     StateManager,
     EmotionState,
     EMOTION_EMOJI,
+    DimensionType,
 )
 
 
@@ -16,8 +18,23 @@ def test_dimension_registry():
     """Test dimension registry."""
     dims = DimensionRegistry.list_dimensions()
     print(f"Registered dimensions: {dims}")
-    assert len(dims) >= 7
+    assert len(dims) >= 12
     print("OK: Dimension registry")
+
+def test_twelve_dimensions():
+    """Test that all twelve dimensions exist."""
+    state = TwelveDimensionalState(agent_id="test")
+    names = DimensionType.all_dimensions()
+    assert len(names) == 12
+    for name in names:
+        assert state.get_score(name) == 0.5
+    print(f"OK: Twelve dimensions: {names}")
+
+    from models import CreativityDimension, ResilienceDimension, \
+        WisdomDimension, AuthenticityDimension, HumorDimension
+    assert CreativityDimension().DIMENSION_NAME == "creativity"
+    assert HumorDimension().DIMENSION_NAME == "humor"
+    print("OK: Extended dimension classes")
 
 def test_state_creation():
     """Test state creation."""
@@ -91,6 +108,7 @@ def test_snapshot():
 
 if __name__ == "__main__":
     test_dimension_registry()
+    test_twelve_dimensions()
     test_state_creation()
     test_state_update()
     test_emotion_indicator()

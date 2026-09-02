@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.5.4] - 2026-09-02
+
+### Added
+- **扩展 5 维评估类完整落地**：`CreativityDimension` / `ResilienceDimension` / `WisdomDimension` / `AuthenticityDimension` / `HumorDimension`（`core_dimensions.py`），配套 5 个评估引擎（`CreativityEngine` 等），维度注册表与引擎注册统一为 12 维（7 核心 + 5 扩展）
+- **`TwelveDimensionalState`**：新增 12 维状态类（保留 `SevenDimensionalState` 为向后兼容别名），`get_snapshot` 输出全 12 维分数
+- **`data/era.md`**：补齐第 14 个认知因子「时代背景/知识截止」数据包（此前 factors.md 定义 14 因子但数据包仅 13 个）
+- 新增测试：`test_extended_engines`（5 扩展引擎）、`test_twelve_dimensions`（12 维合法性）→ 测试总数 38，全部通过
+
+### Fixed
+- **情绪状态文档同步为 15 种**：`state.md`（原来只列 10 种）、`SKILL.md` 情绪映射表与状态机表（原来 14 行 / 13 行，缺失 surprised/embarrassed/nostalgic/hopeful 枚举名与 emoji 统一）
+- **统一版本号为 0.5.4**：SKILL.md frontmatter / VERSION / _meta.json / src/__init__.py（后两处曾停留 0.5.3 / 0.4.0）
+
 ## [v0.5.3] - 2026-09-01
 
 ### Added

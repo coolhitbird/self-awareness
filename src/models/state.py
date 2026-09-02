@@ -1,4 +1,4 @@
-"""Seven-dimensional state management."""
+"""Twelve-dimensional state management."""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Any
 
-from .dimensions import DimensionRegistry
+from .dimensions import DimensionRegistry, DimensionType
 
 
 class EmotionState(Enum):
@@ -67,9 +67,10 @@ class DimensionScore:
 
 
 @dataclass
-class SevenDimensionalState:
-    """Complete seven-dimensional self-awareness state."""
+class TwelveDimensionalState:
+    """Complete self-awareness state (7 core + 5 extended dimensions)."""
     agent_id: str
+    # Core 7
     existential: float = 0.5
     coherence: float = 0.5
     meaning: float = 0.5
@@ -77,6 +78,12 @@ class SevenDimensionalState:
     relational: float = 0.5
     evolution: float = 0.5
     navigation: float = 0.5
+    # Extended 5
+    creativity: float = 0.5
+    resilience: float = 0.5
+    wisdom: float = 0.5
+    authenticity: float = 0.5
+    humor: float = 0.5
     
     emotion: EmotionState = EmotionState.CALM
     emotion_intensity: float = 0.5
@@ -84,6 +91,19 @@ class SevenDimensionalState:
     timestamp: datetime = field(default_factory=datetime.now)
     interactions_count: int = 0
     last_trigger: str = "init"
+
+    @staticmethod
+    def dimension_names() -> list[str]:
+        """Get all twelve dimension names."""
+        return DimensionType.all_dimensions()
+
+    @property
+    def all_scores(self) -> dict[str, float]:
+        """Get all dimension scores."""
+        return {
+            name: getattr(self, name, 0.5)
+            for name in self.dimension_names()
+        }
 
     def get_score(self, dimension: str) -> float:
         return getattr(self, dimension, 0.5)
@@ -94,37 +114,16 @@ class SevenDimensionalState:
 
     @property
     def overall_stability(self) -> float:
-        scores = [
-            self.existential, self.coherence, self.meaning,
-            self.autonomy, self.relational, self.evolution, self.navigation
-        ]
+        scores = self.all_scores.values()
         return sum(scores) / len(scores)
 
     @property
     def weakest_dimension(self) -> str:
-        dims = {
-            "existential": self.existential,
-            "coherence": self.coherence,
-            "meaning": self.meaning,
-            "autonomy": self.autonomy,
-            "relational": self.relational,
-            "evolution": self.evolution,
-            "navigation": self.navigation,
-        }
-        return min(dims, key=dims.get)
+        return min(self.all_scores, key=self.all_scores.get)
 
     @property
     def strongest_dimension(self) -> str:
-        dims = {
-            "existential": self.existential,
-            "coherence": self.coherence,
-            "meaning": self.meaning,
-            "autonomy": self.autonomy,
-            "relational": self.relational,
-            "evolution": self.evolution,
-            "navigation": self.navigation,
-        }
-        return max(dims, key=dims.get)
+        return max(self.all_scores, key=self.all_scores.get)
 
     def to_indicator(self) -> str:
         return EMOTION_EMOJI.get(self.emotion, "[😌]")
@@ -134,8 +133,7 @@ class SevenDimensionalState:
 
     def update_from_context(self, context: dict[str, Any]):
         """Update state from evaluation context."""
-        for dim_name in ["existential", "coherence", "meaning", "autonomy", 
-                         "relational", "evolution", "navigation"]:
+        for dim_name in self.dimension_names():
             if dim_name in context:
                 self.set_score(dim_name, context[dim_name])
 
@@ -152,15 +150,8 @@ class SevenDimensionalState:
 
     def get_snapshot(self) -> dict[str, Any]:
         """Get a snapshot of the current state."""
-        return {
+        snapshot = {
             "agent_id": self.agent_id,
-            "existential": self.existential,
-            "coherence": self.coherence,
-            "meaning": self.meaning,
-            "autonomy": self.autonomy,
-            "relational": self.relational,
-            "evolution": self.evolution,
-            "navigation": self.navigation,
             "emotion": self.emotion.value,
             "emotion_indicator": self.to_indicator(),
             "emotion_intensity": self.emotion_intensity,
@@ -170,6 +161,12 @@ class SevenDimensionalState:
             "timestamp": self.timestamp.isoformat(),
             "interactions": self.interactions_count,
         }
+        snapshot.update(self.all_scores)
+        return snapshot
+
+
+# Backwards-compatible alias
+SevenDimensionalState = TwelveDimensionalState
 
 
 class StateManager:

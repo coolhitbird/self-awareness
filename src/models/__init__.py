@@ -11,6 +11,7 @@ from .state import (
     EMOTION_EMOJI,
     DimensionScore,
     SevenDimensionalState,
+    TwelveDimensionalState,
     StateManager,
 )
 from .core_dimensions import (
@@ -21,6 +22,11 @@ from .core_dimensions import (
     RelationalDimension,
     EvolutionDimension,
     NavigationDimension,
+    CreativityDimension,
+    ResilienceDimension,
+    WisdomDimension,
+    AuthenticityDimension,
+    HumorDimension,
 )
 from .base import BaseProfile
 from .emotion import EmotionData, EmotionIntensity
@@ -37,6 +43,7 @@ __all__ = [
     "EMOTION_EMOJI",
     "DimensionScore",
     "SevenDimensionalState",
+    "TwelveDimensionalState",
     "StateManager",
     # Core dimensions
     "ExistentialDimension",
@@ -46,6 +53,12 @@ __all__ = [
     "RelationalDimension",
     "EvolutionDimension",
     "NavigationDimension",
+    # Extended dimensions
+    "CreativityDimension",
+    "ResilienceDimension",
+    "WisdomDimension",
+    "AuthenticityDimension",
+    "HumorDimension",
     # New modules
     "BaseProfile",
     "EmotionData",

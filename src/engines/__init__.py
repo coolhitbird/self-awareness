@@ -9,6 +9,11 @@ from .dimension_engines import (
     RelationalEngine,
     EvolutionEngine,
     NavigationEngine,
+    CreativityEngine,
+    ResilienceEngine,
+    WisdomEngine,
+    AuthenticityEngine,
+    HumorEngine,
     register_all_engines,
 )
 
@@ -23,5 +28,10 @@ __all__ = [
     "RelationalEngine",
     "EvolutionEngine",
     "NavigationEngine",
+    "CreativityEngine",
+    "ResilienceEngine",
+    "WisdomEngine",
+    "AuthenticityEngine",
+    "HumorEngine",
     "register_all_engines",
 ]

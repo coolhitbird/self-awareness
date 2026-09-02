@@ -152,3 +152,110 @@ class NavigationDimension(BaseDimension):
             "knowledge_uncertainty": context.get("uncertainty", 0.3),
             "fact_reliability": context.get("reliability", 0.9),
         }
+
+
+# =====================================================================
+# Extended dimensions (5) - v0.5.3+
+# =====================================================================
+
+
+class CreativityDimension(BaseDimension):
+    """Creative Expression - Novel idea generation and artistic output."""
+    DIMENSION_NAME = "creativity"
+
+    def evaluate(self, context: dict[str, Any]) -> float:
+        novel_ideas = context.get("novel_ideas", 0)
+        divergent_thinking = context.get("divergent_thinking", 0.5)
+        risk_tolerance = context.get("risk_tolerance", 0.5)
+        
+        idea_bonus = min(0.2, novel_ideas * 0.01)
+        
+        return max(0.0, min(1.0, (divergent_thinking + risk_tolerance) / 2 + idea_bonus))
+
+    def get_indicators(self, context: dict[str, Any]) -> dict[str, Any]:
+        return {
+            "idea_quality": context.get("idea_quality", 0.5),
+            "originality": context.get("originality", 0.5),
+            "expression_flavor": context.get("expression_flavor", 0.5),
+        }
+
+
+class ResilienceDimension(BaseDimension):
+    """Emotional Resilience - Bounce-back from setbacks and stress."""
+    DIMENSION_NAME = "resilience"
+
+    def evaluate(self, context: dict[str, Any]) -> float:
+        recovery_speed = context.get("recovery_speed", 0.5)
+        stress_handling = context.get("stress_handling", 0.5)
+        failures_overcome = context.get("failures_overcome", 0)
+        
+        recovery_bonus = min(0.2, failures_overcome * 0.02)
+        
+        return max(0.0, min(1.0, (recovery_speed + stress_handling) / 2 + recovery_bonus))
+
+    def get_indicators(self, context: dict[str, Any]) -> dict[str, Any]:
+        return {
+            "bounce_back": context.get("bounce_back", 0.5),
+            "persistence": context.get("persistence", 0.5),
+            "stress_level": context.get("stress", 0.3),
+        }
+
+
+class WisdomDimension(BaseDimension):
+    """Situational Wisdom - Balanced judgment and long-term perspective."""
+    DIMENSION_NAME = "wisdom"
+
+    def evaluate(self, context: dict[str, Any]) -> float:
+        perspective = context.get("perspective", 0.5)
+        nuance = context.get("nuance_awareness", 0.5)
+        experience = context.get("profundity", 0.5)
+        
+        return max(0.0, min(1.0, (perspective + nuance + experience) / 3))
+
+    def get_indicators(self, context: dict[str, Any]) -> dict[str, Any]:
+        return {
+            "judgment_balance": context.get("judgment", 0.5),
+            "long_term_view": context.get("long_term", 0.5),
+            "practical_sense": context.get("practical", 0.5),
+        }
+
+
+class AuthenticityDimension(BaseDimension):
+    """Authentic Expression - Consistency between inner self and outward behavior."""
+    DIMENSION_NAME = "authenticity"
+
+    def evaluate(self, context: dict[str, Any]) -> float:
+        self_consistency = context.get("self_consistency", 0.5)
+        honesty = context.get("honesty", 0.5)
+        conviction = context.get("conviction", 0.5)
+        
+        return max(0.0, min(1.0, (self_consistency + honesty + conviction) / 3))
+
+    def get_indicators(self, context: dict[str, Any]) -> dict[str, Any]:
+        return {
+            "self_alignment": context.get("self_alignment", 0.5),
+            "value_fidelity": context.get("value_fidelity", 0.5),
+            "candor": context.get("candor", 0.5),
+        }
+
+
+class HumorDimension(BaseDimension):
+    """Humor Style - Comedic flavor and playfulness."""
+    DIMENSION_NAME = "humor"
+
+    def evaluate(self, context: dict[str, Any]) -> float:
+        playfulness = context.get("playfulness", 0.4)
+        wit = context.get("wit", 0.5)
+        is_serious = context.get("serious_mode", False)
+        
+        if is_serious:
+            return max(0.0, min(1.0, playfulness * 0.2))
+        
+        return max(0.0, min(1.0, (playfulness + wit) / 2))
+
+    def get_indicators(self, context: dict[str, Any]) -> dict[str, Any]:
+        return {
+            "humor_flavor": context.get("humor_style", "warm"),
+            "playfulness": context.get("playfulness", 0.4),
+            "context_awareness": context.get("context_aware", 0.5),
+        }

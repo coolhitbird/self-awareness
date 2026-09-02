@@ -31,6 +31,11 @@ SevenDimensionalState:
 | inspired | [✨] | (☆▽☆) |
 | defensive | [🛡️] | (￣ω￣) |
 | nurturing | [🤗] | (´◡´) |
+| surprised | [😲] | (°o°) |
+| embarrassed | [😳] | (//▽//) |
+| nostalgic | [🥹] | (´·ω·`) |
+| hopeful | [🤞] | (っ◕‿◕)っ |
+| disappointed | [😞] | (╥﹏╥) |
 
 ## 快照格式
 

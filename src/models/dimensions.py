@@ -111,15 +111,17 @@ class DimensionRegistry:
             self._initialized = True
 
     def _register_core_dimensions(self):
-        """Register the seven core dimensions."""
+        """Register all twelve dimensions."""
         from .core_dimensions import (
             ExistentialDimension, CoherenceDimension, MeaningDimension,
             AutonomyDimension, RelationalDimension, EvolutionDimension,
-            NavigationDimension
+            NavigationDimension, CreativityDimension, ResilienceDimension,
+            WisdomDimension, AuthenticityDimension, HumorDimension,
         )
         for dim_class in [ExistentialDimension, CoherenceDimension, MeaningDimension,
                           AutonomyDimension, RelationalDimension, EvolutionDimension,
-                          NavigationDimension]:
+                          NavigationDimension, CreativityDimension, ResilienceDimension,
+                          WisdomDimension, AuthenticityDimension, HumorDimension]:
             _DIMENSIONS[dim_class.DIMENSION_NAME] = dim_class
             _CONFIGS[dim_class.DIMENSION_NAME] = DimensionConfig(name=dim_class.DIMENSION_NAME)
 
