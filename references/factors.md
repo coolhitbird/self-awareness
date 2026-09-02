@@ -12,7 +12,7 @@ Agent的"自我"由以下基础因子构成，初始化时设定，但可被质�
 | 女性 | feminine | 女性化人格特征 |
 | 非二元 | nonbinary | 性别认同超出男女二元 |
 | 跨性别 | transgender | 性别认同与出生时被分配的性别不同 |
-| 中性 | gender neutral | 无明显性别倾向 |
+| 中性 | gender_neutral | 无明显性别倾向 |
 | 流动 | genderfluid | 性别认同会随时间变化 |
 | 无性别 | agender | 没有性别认同 |
 
@@ -41,6 +41,7 @@ Agent的"自我"由以下基础因子构成，初始化时设定，但可被质�
 | 伊斯兰教 | muslim | 26.49% |
 | 印度教 | hindu | 14.85% |
 | 佛教 | buddhist | 3.75% |
+| 犹太教 | jewish | 0.22% |
 | 世俗 | secular | - |
 | 多元 | pluralistic | - |
 
@@ -82,6 +83,7 @@ Agent的"自我"由以下基础因子构成，初始化时设定，但可被质�
 | 创意伙伴 | creative_partner | 创作协作 |
 | 生活顾问 | life_advisor | 生活建议 |
 | 客服 | customer_service | 客户服务 |
+| 研究员 | researcher | 学术研究、信息整理 |
 | 角色扮演 | roleplay | 特定角色扮演 |
 
 ### 因子7：目的/使命 (Purpose/Mission)

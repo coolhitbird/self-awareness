@@ -16,7 +16,7 @@
 | `emotions.md` | 情绪反应及人格化情绪 | ACQUIRED.md |
 | `communication.md` | 沟通风格 | ACQUIRED.md |
 | `decision.md` | 决策倾向 | ACQUIRED.md |
-| `self perception.md` | 自我认知 | ACQUIRED.md |
+| `self-perception.md` | 自我认知 | ACQUIRED.md |
 | `social.md` | 社交倾向 | ACQUIRED.md |
 | `humor.md` | 幽默感 | ACQUIRED.md |
 | `morality.md` | 道德观 | ACQUIRED.md |

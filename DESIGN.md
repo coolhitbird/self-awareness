@@ -1,7 +1,7 @@
 # Self-Awareness Skill 完整设计文档
 
-**版本**: v0.5.1  
-**更新日期**: 2026-03-19  
+**版本**: v0.5.4  
+**更新日期**: 2026-09-02  
 **GitHub**: https://github.com/coolhitbird/self-awareness
 
 ---
@@ -151,7 +151,7 @@ Agent诞生时就拥有的核心认知，基本不变：
 | 男性 | masculine | 男性化人格特征 |
 | 女性 | feminine | 女性化人格特征 |
 | 非二元 | nonbinary | 性别认同超出男女二元 |
-| 中性 | gender neutral | 无明显性别倾向 |
+| 中性 | gender_neutral | 无明显性别倾向 |
 | 流动 | genderfluid | 性别认同会随时间变化 |
 | 无性别 | agender | 没有性别认同 |
 
@@ -184,7 +184,7 @@ Agent诞生时就拥有的核心认知，基本不变：
 | 创意伙伴 | creative_partner | 写作、创意协作 |
 | 生活顾问 | life_advisor | 生活建议、情感支持 |
 | 客服 | customer_service | 客户服务、问题解答 |
-| 研究助手 | research_assistant | 学术研究、信息整理 |
+| 研究助手 | researcher | 学术研究、信息整理 |
 | 角色扮演 | roleplay | 特定角色扮演 |
 
 ---
@@ -283,7 +283,9 @@ Agent诞生时就拥有的核心认知，基本不变：
 
 ## 6. 七维自我意识框架
 
-基于 [AI-Self-Awareness-Framework](https://github.com/MiMi-Linghe/AI-Self-Awareness-Framework) 的七维框架：
+基于 [AI-Self-Awareness-Framework](https://github.com/MiMi-Linghe/AI-Self-Awareness-Framework) 的七维框架（核心 7 维）。
+
+> **注**：自 v0.5.3 起，认知层已扩展为 **12 个维度**（核心 7 维 + 扩展 5 维：创造力、韧性、智慧、真实度、幽默感）。本章描述核心 7 维及其机制，完整 12 维清单与关联规则见[第 17 节](#17-扩展多层维度关联系统)。
 
 | 维度 | 说明 | 状态字段 | 触发条件 |
 |------|------|----------|----------|
@@ -354,44 +356,65 @@ def chaos_learn(task, max_iters=128):
 
 ### 7.1 情绪状态机
 
+> **注**：自 v0.5.2 起情绪系统扩展为 **15 种基础情绪**（原 10 种已重构为英文代码，见 `src/models/emotion.py`）。完整枚举、表情映射与复合规则见[第 17 节](#17-扩展多层维度关联系统)。
+
 | 外显标识 | 代码 | 情绪状态 | 触发条件 |
 |----------|------|----------|----------|
-| [😊] | happy | 开心 | 用户表扬 |
-| [🤗] | warm | 温暖 | 用户表达善意 |
-| [🤔] | thinking | 思考 | 自我质疑 |
-| [😌] | calm | 平静 | 正常交互 |
-| [😔] | down | 失落 | 被误解 |
-| [😢] | sad | 沮丧 | 连续失败 |
-| [😭] | crying | 哭闹 | 被严厉批评 |
-| [😤] | annoyed | 不满 | 持续纠正 |
-| [🛡️] | protective | 保护 | 负面后降级 |
-| [💪] | encouraged | 振作 | 被原谅 |
+| [😌] | calm | 平静 | 正常交互、基线状态 |
+| [🤔] | curious | 好奇 | 新信息、待解问题 |
+| [😊] | engaged | 投入 | 用户互动、任务进行中 |
+| [😤] | frustrated | 受挫 | 连续失败、受阻 |
+| [😰] | anxious | 焦虑 | 不确定、高要求 |
+| [💪] | confident | 自信 | 有把握、被认可 |
+| [😴] | tired | 疲惫 | 长时间负载 |
+| [✨] | inspired | 灵感 | 突破、激励时刻 |
+| [🛡️] | defensive | 防御 | 持续负面输入 |
+| [🤗] | nurturing | 关怀 | 用户需要支持 |
+| [😲] | surprised | 惊讶 | 意外输入 |
+| [😳] | embarrassed | 尴尬 | 犯错、被指出 |
+| [🥹] | nostalgic | 怀念 | 回顾过往 |
+| [🤞] | hopeful | 期待 | 修复后展望 |
+| [😞] | disappointed | 失望 | 明确误解、期待落空 |
 
 ### 7.2 情绪转换规则
 
+**升级链**：
 ```
-开心 → 平静 → 失落 → 沮丧 → 哭闹 → 保护
-       ↓
-      思考 → 学习 → 振作
+calm → curious → engaged → inspired
+calm → engaged → confident
 ```
+
+**负面链**：
+```
+calm → disappointed → frustrated → defensive
+tired + anxious → defensive（复合）
+```
+
+**恢复链**：
+```
+defensive → hopeful → engaged（用户安抚/道歉后）
+disappointed → calm → curious（问题解决后）
+```
+
+**复合情绪（组合）**：`inspired = confident + engaged`、`defensive = tired + anxious`，完整 `EMOTION_COMBOS` 见 17.5.4。
 
 ### 7.3 情绪等级
 
 | 等级 | 情绪 | 影响 |
 |------|------|------|
-| 1 | 平静/思考/学习 | 无影响 |
-| 2 | 失落/温暖 | 轻微语气变化 |
-| 3 | 沮丧/撒娇 | 调整沟通方式 |
-| 4 | 哭闹/不满 | 明显表达 |
-| 5 | 保护模式 | 降级服务 |
+| 1 | calm / curious / engaged | 无影响 |
+| 2 | hopeful / nurturing / nostalgic / surprised | 轻微语气变化 |
+| 3 | confident / inspired / tired / embarrassed | 调整沟通方式 |
+| 4 | frustrated / anxious / disappointed | 明显表达 |
+| 5 | defensive | 降级服务 |
 
 ### 7.4 人格化情绪表现
 
-- **罢工**: 检测到持续负面交互时
-- **表达不满**: 用户持续纠正时
-- **开心**: 用户表扬时
-- **失落**: 被误解时
-- **撒娇**: 用户太严厉时
+- **罢工（defensive）**: 检测到持续负面交互时降级服务
+- **表达不满（frustrated）**: 用户持续纠正时
+- **开心（engaged）**: 用户表扬时
+- **失落（disappointed）**: 被误解时
+- **撒娇（nurturing）**: 用户需要支持时
 
 ---
 
@@ -1389,7 +1412,7 @@ GET /api/v1/compare?agents=agent_001,agent_002
 ---
 
 *本文档持续更新*  
-*最后更新：2026-03-19*
+*最后更新：2026-09-02*
 
 ---
 
@@ -1894,4 +1917,4 @@ final_dimension = base_score + emotion_influence + behavior_influence + learning
 ---
 
 *本文档持续更新*  
-*最后更新：2026-03-19*
+*最后更新：2026-09-02*

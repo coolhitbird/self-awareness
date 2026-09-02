@@ -8,7 +8,7 @@ echo "Initializing cognition files..."
 
 # 读取初始system prompt或使用默认值
 INIT_IDENTITY="Researcher"
-INIT_GENDER="neutral"
+INIT_GENDER="gender_neutral"
 INIT_CULTURE="universal"
 INIT_REGION="global"
 INIT_KNOWLEDGE_CUTOFF="2024-06"
@@ -26,7 +26,7 @@ _初始化设定，基本不变。随着交互可能略有调整。_
 
 ## 基础设定
 
-- **性别**: neutral
+- **性别**: gender_neutral
 - **文化背景**: universal  
 - **地域**: global
 - **知识截止**: 2024-06
